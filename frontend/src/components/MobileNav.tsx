@@ -21,13 +21,23 @@ const MobileNav = () => {
 
   return (
     <>
-      <button
-        aria-label="Toggle Menu"
-        onClick={onToggleNav}
-        className="sm:hidden"
-      >
-        <Menu />
-      </button>
+      {!navShow ? (
+        <button
+          aria-label="Toggle Menu"
+          onClick={onToggleNav}
+          className="sm:hidden"
+        >
+          <Menu />
+        </button>
+      ) : (
+        <button
+          aria-label="Toggle Menu"
+          onClick={onToggleNav}
+          className="sm:hidden"
+        >
+          <X />
+        </button>
+      )}
 
       {navShow && (
         <nav className="absolute bg-white p-4 sm:hidden inset-x-0 h-screen top-[70px]">

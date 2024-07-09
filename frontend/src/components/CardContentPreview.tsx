@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "@/components/Link";
 import { Badge } from "./ui/badge";
+import Tag from "./Tag";
 
 interface CardContentPreviwProps {
   isOnBackground?: boolean;
@@ -36,18 +37,7 @@ const CardContentPreview = ({
           <div className="flex flex-wrap gap-1">
             {sampleTags.map((tag, idx) => {
               return (
-                <Badge key={idx} variant={"outline"}>
-                  <Link
-                    href="#"
-                    className={`text-sm font-light lowercase ${
-                      isOnBackground
-                        ? `text-background`
-                        : `text-muted-foreground`
-                    } brightness-75 hover:brightness-125`}
-                  >
-                    {tag.split(" ").join("-")}
-                  </Link>
-                </Badge>
+                <Tag key={idx} text={tag} isOnBackground={isOnBackground} />
               );
             })}
           </div>

@@ -26,7 +26,7 @@ export default function RootLayout({
         )}
       >
         <Header />
-        <main className="flex min-h-screen flex-col items-center justify-between py-7 px-4 border">
+        <main className="flex min-h-screen flex-col items-center py-7 px-4 border">
           {/* Taking the space of navbar */}
           <div className="h-[70px]"></div>
           {children}

@@ -1,16 +1,22 @@
 import Link from "next/link";
+import { Badge } from "./ui/badge";
 interface Props {
   text: string;
+  isOnBackground?: boolean;
 }
 
-const Tag = ({ text }: Props) => {
+const Tag = ({ text, isOnBackground = false }: Props) => {
   return (
-    <Link
-      href="#"
-      className="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-    >
-      {text.split(" ").join("-")}
-    </Link>
+    <Badge variant={"outline"}>
+      <Link
+        href="#"
+        className={`text-sm font-light lowercase ${
+          isOnBackground ? `text-background` : `text-muted-foreground`
+        } brightness-75 hover:brightness-125`}
+      >
+        {text.split(" ").join("-")}
+      </Link>
+    </Badge>
   );
 };
 

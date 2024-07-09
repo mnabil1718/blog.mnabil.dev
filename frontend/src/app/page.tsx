@@ -1,10 +1,10 @@
-import FeaturesPosts from "@/components/Homepage/featured/FeaturesPosts";
-import LatestPosts from "@/components/Homepage/Lastest/LatestPosts";
+import FeaturedPosts from "@/components/homepage/featured/FeaturedPosts";
+import LatestPosts from "@/components/homepage/Latest/LatestPosts";
 
 export default function Home() {
   return (
     <div className="mx-auto w-full xl:max-w-screen-xl">
-      <FeaturesPosts />
+      <FeaturedPosts />
       <LatestPosts />
     </div>
   );
