@@ -1,4 +1,6 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -8,22 +10,24 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
-import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
+import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 
-import DefaultTheme from "@/components/editor/themes/DefaultTheme";
-import ToolbarPlugin from "@/components/editor/plugins/ToolbarPlugin";
-import ListMaxIndentLevelPlugin from "@/components/editor/plugins/ListMaxIndentPlugin";
-import AutoLinkPlugin from "@/components/editor/plugins/AutoLinkPlugin";
-import LinkPlugin from "@/components/editor/plugins/LinkPlugin";
+import DefaultTheme from "./themes/DefaultTheme";
+import ToolbarPlugin from "./plugins/ToolbarPlugin";
+import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentPlugin";
+import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
+import LinkPlugin from "./plugins/LinkPlugin";
 
-import "@/components/editor/styles/lexical.css";
-import { useEffect, useState } from "react";
-import FloatingLinkEditorPlugin from "./plugins/FloatingLinkEditorPlugin";
+import "./styles/lexical.css";
+import "./styles/tailwind-style.css";
+
 import { CAN_USE_DOM } from "./utils/canUseDOM";
+import FloatingLinkEditorPlugin from "./plugins/FloatingLinkEditorPlugin";
+import CodeActionMenuPlugin from "./plugins/CodeActionMenuPlugin";
 
 const placeholder = "Start writing...";
 
@@ -106,13 +110,16 @@ export default function Editor() {
           <ListMaxIndentLevelPlugin maxDepth={7} />
           <TabIndentationPlugin />
           <AutoLinkPlugin />
-          {/* <ClickableLinkPlugin /> */}
-          {floatingAnchorElem && !isSmallWidthViewport && (
-            <FloatingLinkEditorPlugin
-              anchorElem={floatingAnchorElem}
-              isLinkEditMode={isLinkEditMode}
-              setIsLinkEditMode={setIsLinkEditMode}
-            />
+          <CodeHighlightPlugin />
+          {floatingAnchorElem && (
+            <>
+              <FloatingLinkEditorPlugin
+                anchorElem={floatingAnchorElem}
+                isLinkEditMode={isLinkEditMode}
+                setIsLinkEditMode={setIsLinkEditMode}
+              />
+              <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+            </>
           )}
         </div>
       </div>

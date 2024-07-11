@@ -1,3 +1,5 @@
+"use client";
+
 import type { ElementNode, RangeSelection } from "lexical";
 
 import { $getListDepth, $isListItemNode, $isListNode } from "@lexical/list";

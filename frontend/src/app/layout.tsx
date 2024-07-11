@@ -25,13 +25,7 @@ export default function RootLayout({
           mono.variable
         )}
       >
-        <Header />
-        <main className="flex min-h-screen flex-col items-center py-7 px-4 border">
-          {/* Taking the space of navbar */}
-          <div className="h-[70px]"></div>
-          {children}
-        </main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

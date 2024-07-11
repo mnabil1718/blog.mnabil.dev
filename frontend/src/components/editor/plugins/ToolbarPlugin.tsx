@@ -11,6 +11,7 @@ import {
   CODE_LANGUAGE_MAP,
   getLanguageFriendlyName,
 } from "@lexical/code";
+
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import {
   $isListNode,
@@ -111,6 +112,7 @@ import {
 import BlockFormatDropDown from "@/components/editor/components/BlockFormatDropdown";
 import { sanitizeUrl } from "@/components/editor/utils/url";
 import { getSelectedNode } from "@/components/editor/utils/getSelectedNode";
+import CodeLanguageDropdown from "../components/CodeLanguageDropdown";
 
 export default function ToolbarPlugin({
   setIsLinkEditMode,
@@ -138,6 +140,7 @@ export default function ToolbarPlugin({
   const [isCode, setIsCode] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
+  const [codeLanguage, setCodeLanguage] = useState<string>("");
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -211,14 +214,14 @@ export default function ToolbarPlugin({
           if (type in blockTypeToBlockName) {
             setBlockType(type as keyof typeof blockTypeToBlockName);
           }
-          // if ($isCodeNode(element)) {
-          //   const language =
-          //     element.getLanguage() as keyof typeof CODE_LANGUAGE_MAP;
-          //   setCodeLanguage(
-          //     language ? CODE_LANGUAGE_MAP[language] || language : ""
-          //   );
-          //   return;
-          // }
+          if ($isCodeNode(element)) {
+            const language =
+              element.getLanguage() as keyof typeof CODE_LANGUAGE_MAP;
+            setCodeLanguage(
+              language ? CODE_LANGUAGE_MAP[language] || language : ""
+            );
+            return;
+          }
         }
       }
 
@@ -369,64 +372,74 @@ export default function ToolbarPlugin({
       <Separator orientation="vertical" className="h-8 my-1 mx-2" />
 
       {/* TEXT FORMAT */}
-      <Toggle
-        pressed={isBold}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-        }}
-        size={"sm"}
-        aria-label="Format Bold"
-      >
-        <Bold size={13} />
-      </Toggle>
-      <Toggle
-        pressed={isItalic}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-        }}
-        size={"sm"}
-        aria-label="Format Italics"
-      >
-        <Italic size={13} />
-      </Toggle>
-      <Toggle
-        size={"sm"}
-        pressed={isUnderline}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-        }}
-        aria-label="Format Underline"
-      >
-        <Underline size={13} />
-      </Toggle>
-      <Toggle
-        size={"sm"}
-        pressed={isStrikethrough}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
-        }}
-        aria-label="Format Strikethrough"
-      >
-        <Strikethrough size={13} />
-      </Toggle>
-      <Toggle
-        size={"sm"}
-        pressed={isCode}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
-        }}
-        aria-label="Format Code"
-      >
-        <Code size={13} />
-      </Toggle>
-      <Toggle
-        size={"sm"}
-        pressed={isLink}
-        onClick={insertLink}
-        aria-label="Insert Link"
-      >
-        <Link size={13} />
-      </Toggle>
+      {blockType === "code" ? (
+        <CodeLanguageDropdown
+          codeLanguage={codeLanguage}
+          activeEditor={activeEditor}
+          selectedElementKey={selectedElementKey}
+        />
+      ) : (
+        <>
+          <Toggle
+            pressed={isBold}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+            }}
+            size={"sm"}
+            aria-label="Format Bold"
+          >
+            <Bold size={13} />
+          </Toggle>
+          <Toggle
+            pressed={isItalic}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
+            }}
+            size={"sm"}
+            aria-label="Format Italics"
+          >
+            <Italic size={13} />
+          </Toggle>
+          <Toggle
+            size={"sm"}
+            pressed={isUnderline}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
+            }}
+            aria-label="Format Underline"
+          >
+            <Underline size={13} />
+          </Toggle>
+          <Toggle
+            size={"sm"}
+            pressed={isStrikethrough}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
+            }}
+            aria-label="Format Strikethrough"
+          >
+            <Strikethrough size={13} />
+          </Toggle>
+          <Toggle
+            size={"sm"}
+            pressed={isCode}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
+            }}
+            aria-label="Format Code"
+          >
+            <Code size={13} />
+          </Toggle>
+          <Toggle
+            size={"sm"}
+            pressed={isLink}
+            onClick={insertLink}
+            aria-label="Insert Link"
+          >
+            <Link size={13} />
+          </Toggle>
+        </>
+      )}
 
       <Separator orientation="vertical" className="h-8 my-1 mx-2" />
 
