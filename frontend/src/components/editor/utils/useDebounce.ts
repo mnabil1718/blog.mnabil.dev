@@ -1,3 +1,4 @@
+"use client";
 import { debounce } from "lodash-es";
 import { useMemo, useRef } from "react";
 

@@ -113,6 +113,7 @@ import BlockFormatDropDown from "@/components/editor/components/BlockFormatDropd
 import { sanitizeUrl } from "@/components/editor/utils/url";
 import { getSelectedNode } from "@/components/editor/utils/getSelectedNode";
 import CodeLanguageDropdown from "../components/CodeLanguageDropdown";
+import InsertDropdown from "../components/InsertDropdown";
 
 export default function ToolbarPlugin({
   setIsLinkEditMode,
@@ -141,20 +142,21 @@ export default function ToolbarPlugin({
   const [isLink, setIsLink] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>("");
+  const [isImageCaption, setIsImageCaption] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
-      // if (activeEditor !== editor && $isEditorIsNestedEditor(activeEditor)) {
-      //   const rootElement = activeEditor.getRootElement();
-      //   setIsImageCaption(
-      //     !!rootElement?.parentElement?.classList.contains(
-      //       'image-caption-container',
-      //     ),
-      //   );
-      // } else {
-      //   setIsImageCaption(false);
-      // }
+      if (activeEditor !== editor && $isEditorIsNestedEditor(activeEditor)) {
+        const rootElement = activeEditor.getRootElement();
+        setIsImageCaption(
+          !!rootElement?.parentElement?.classList.contains(
+            "image-caption-container"
+          )
+        );
+      } else {
+        setIsImageCaption(false);
+      }
 
       const anchorNode = selection.anchor.getNode();
       let element =
@@ -243,7 +245,7 @@ export default function ToolbarPlugin({
           : parent?.getFormatType() || "left"
       );
     }
-  }, [activeEditor]);
+  }, [activeEditor, editor]);
 
   const insertLink = useCallback(() => {
     if (!isLink) {
@@ -332,7 +334,7 @@ export default function ToolbarPlugin({
 
   return (
     <div
-      className="flex flex-wrap gap-1 items-center p-3 border-b"
+      className="sticky z-[1] top-[70px] flex overflow-x-auto gap-1 items-center p-3 border-b h-30 bg-background/80 saturate-100 backdrop-blur-[10px] toolbar-scroll"
       ref={toolbarRef}
     >
       {/* UNDO & REDO */}
@@ -438,6 +440,10 @@ export default function ToolbarPlugin({
           >
             <Link size={13} />
           </Toggle>
+
+          <Separator orientation="vertical" className="h-8 my-1 mx-2" />
+
+          <InsertDropdown />
         </>
       )}
 

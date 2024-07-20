@@ -39,12 +39,12 @@ const DefaultTheme = {
   //   h4: "editor-heading-h4",
   //   h5: "editor-heading-h5",
   // },
-  // image: "editor-image",
+  image: "editor-image",
   link: "prose-a:hover:cursor-pointer",
   list: {
-    listitem: "my-0 mx-8",
-    listitemChecked: "list-item-checked",
-    listitemUnchecked: "list-item-unchecked",
+    // listitem: "",
+    listitemChecked: "-left-10 list-item-checked",
+    listitemUnchecked: "-left-10 list-item-unchecked",
     nested: {
       listitem: "list-none before:hidden after:hidden",
     },
@@ -58,7 +58,7 @@ const DefaultTheme = {
   rtl: "text-right",
   text: {
     bold: "font-bold",
-    code: "not-prose font-mono bg-gray-100 rounded-sm p-1 text-sm",
+    code: "not-prose font-mono font-bold text-sm",
     hashtag: "editor-text-hashtag",
     italic: "italic",
     overflowed: "editor-text-overflowed",

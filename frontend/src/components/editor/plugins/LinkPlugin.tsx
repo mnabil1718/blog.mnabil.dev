@@ -1,3 +1,5 @@
+"use client";
+
 import { LinkPlugin as LexicalLinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import * as React from "react";
 

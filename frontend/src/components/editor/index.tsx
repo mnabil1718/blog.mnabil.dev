@@ -22,12 +22,14 @@ import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentPlugin";
 import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
 import LinkPlugin from "./plugins/LinkPlugin";
 
-import "./styles/lexical.css";
 import "./styles/tailwind-style.css";
 
 import { CAN_USE_DOM } from "./utils/canUseDOM";
 import FloatingLinkEditorPlugin from "./plugins/FloatingLinkEditorPlugin";
 import CodeActionMenuPlugin from "./plugins/CodeActionMenuPlugin";
+import DragDropPaste from "./plugins/DragDropPaste";
+import ImagesPlugin from "./plugins/ImagesPlugin";
+import { ImageNode } from "./nodes/ImageNode";
 
 const placeholder = "Start writing...";
 
@@ -42,6 +44,7 @@ const editorConfig = {
     CodeHighlightNode,
     AutoLinkNode,
     LinkNode,
+    ImageNode,
   ],
   onError(error: Error) {
     throw error;
@@ -94,7 +97,7 @@ export default function Editor() {
               <div className="min-h-[375px] border-none flex relative outline-none z-0 overflow-auto resize-y">
                 <div ref={onRef} className="flex-auto relative resize-y z-[-1]">
                   <ContentEditable
-                    className="relative min-h-[375px] prose prose-sm resize-none text-base caret-foreground [tab-size:1] outline-none py-4 px-3"
+                    className="editor-shell relative min-h-[375px] prose prose-sm resize-none text-base caret-foreground [tab-size:1] outline-none py-4 px-3"
                     aria-placeholder={placeholder}
                   />
                 </div>
@@ -102,6 +105,8 @@ export default function Editor() {
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
+          <DragDropPaste />
+          <ImagesPlugin />
           <HistoryPlugin />
           <AutoFocusPlugin />
           <ListPlugin />
