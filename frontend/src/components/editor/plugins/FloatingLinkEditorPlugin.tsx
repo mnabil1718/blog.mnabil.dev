@@ -289,25 +289,6 @@ function FloatingLinkEditor({
           >
             <Trash size={15} />
           </Button>
-          {/* <div
-            className="link-edit"
-            role="button"
-            tabIndex={0}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              setEditedLinkUrl(linkUrl);
-              setIsLinkEditMode(true);
-            }}
-          />
-          <div
-            className="link-trash"
-            role="button"
-            tabIndex={0}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-            }}
-          /> */}
         </div>
       )}
     </div>

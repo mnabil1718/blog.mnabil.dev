@@ -53,7 +53,11 @@ const editorConfig = {
   theme: DefaultTheme,
 };
 
-export default function Editor() {
+export default function Editor({
+  showTableOfContents = false,
+}: {
+  showTableOfContents?: boolean;
+}) {
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
@@ -86,7 +90,7 @@ export default function Editor() {
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className="relative w-full">
-        <TableOfContentsPlugin />
+        {showTableOfContents && <TableOfContentsPlugin />}
         <div className="relative border min-h-[375px] rounded-md max-w-screen-sm mx-auto">
           <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
           <div className="relative bg-white">
