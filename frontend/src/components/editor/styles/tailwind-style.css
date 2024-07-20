@@ -61,14 +61,6 @@
       @apply hidden
     }
 
-    /* .list-item-checked {
-      @apply relative list-none outline-none line-through text-left before:content-[''] before:w-4 before:h-4 before:absolute before:-left-6 before:cursor-pointer before:block before:bg-cover rtl:before:left-auto rtl:before:right-0 focus:before:rounded-sm focus:before:shadow-sm before:border before:border-blue-400 before:rounded-sm before:bg-blue-400 before:bg-no-repeat after:content-[''] after:cursor-pointer after:border after:border-white after:absolute after:block after:top-[5px] after:left-[-18px] after:w-[3px] after:h-1.5 after:rotate-45 after:border-t-0 after:border-r-2 after:border-b-2 after:border-l-0
-    }
-    
-    .list-item-unchecked {
-      @apply p-20 relative list-none outline-none text-left before:content-[''] before:w-4 before:h-4 before:absolute before:-left-6 before:cursor-pointer before:bg-cover rtl:before:left-auto rtl:before:right-0 focus:before:rounded-sm focus:before:shadow-sm before:border before:rounded-sm
-    } */
-
     .token-comment {
       @apply text-[#6A9955];
     }
@@ -192,7 +184,6 @@
       @apply touch-none
     }
 
-    
     .ImageNode__placeholder {
       @apply text-xs text-white/50 overflow-hidden absolute top-2 left-2 select-none whitespace-nowrap inline-block pointer-events-none
     }
@@ -204,5 +195,39 @@
     .ContentEditable__root {
       @apply text-xs block relative outline-0 border-0
     }
+
+    /* ================ TABLE OF CONTENT =============== */
+
+    .table-of-contents .heading2 {
+      margin-left: 10px;
+    }
+
+    .table-of-contents .heading3 {
+      margin-left: 20px;
+    }
+
+    .table-of-contents .heading4 {
+      margin-left: 30px;
+    }
+
+    .normal-heading {
+      @apply cursor-pointer text-xs font-semibold my-1
+    }
+
+    .headings {
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+      @apply list-none m-0 p-0 overflow-scroll w-80 max-h-96 overflow-x-hidden overflow-y-auto
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .headings::-webkit-scrollbar {
+      @apply hidden
+    }
+
+    .normal-heading-wrapper {
+      @apply relative
+    }
+
 
   }

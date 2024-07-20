@@ -30,6 +30,7 @@ import CodeActionMenuPlugin from "./plugins/CodeActionMenuPlugin";
 import DragDropPaste from "./plugins/DragDropPaste";
 import ImagesPlugin from "./plugins/ImagesPlugin";
 import { ImageNode } from "./nodes/ImageNode";
+import TableOfContentsPlugin from "./plugins/TableOfContents";
 
 const placeholder = "Start writing...";
 
@@ -84,48 +85,54 @@ export default function Editor() {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="relative text-black text-left font-normal leading-5 my-5 mx-auto border w-full min-h-[375px] rounded-md">
-        <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
-        <div className="relative bg-white">
-          <RichTextPlugin
-            placeholder={
-              <div className="absolute inline-block pointer-events-none select-none top-[17px] left-[12px] text-base overflow-ellipsis overflow-hidden text-gray-400">
-                {placeholder}
-              </div>
-            }
-            contentEditable={
-              <div className="min-h-[375px] border-none flex relative outline-none z-0 overflow-auto resize-y">
-                <div ref={onRef} className="flex-auto relative resize-y z-[-1]">
-                  <ContentEditable
-                    className="editor-shell relative min-h-[375px] prose prose-sm resize-none text-base caret-foreground [tab-size:1] outline-none py-4 px-3"
-                    aria-placeholder={placeholder}
-                  />
+      <div className="relative w-full">
+        <TableOfContentsPlugin />
+        <div className="relative border min-h-[375px] rounded-md max-w-screen-sm mx-auto">
+          <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+          <div className="relative bg-white">
+            <RichTextPlugin
+              placeholder={
+                <div className="absolute inline-block pointer-events-none select-none top-[17px] left-[12px] text-base overflow-ellipsis overflow-hidden text-gray-400">
+                  {placeholder}
                 </div>
-              </div>
-            }
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          <DragDropPaste />
-          <ImagesPlugin />
-          <HistoryPlugin />
-          <AutoFocusPlugin />
-          <ListPlugin />
-          <LinkPlugin />
-          <CheckListPlugin />
-          <ListMaxIndentLevelPlugin maxDepth={7} />
-          <TabIndentationPlugin />
-          <AutoLinkPlugin />
-          <CodeHighlightPlugin />
-          {floatingAnchorElem && (
-            <>
-              <FloatingLinkEditorPlugin
-                anchorElem={floatingAnchorElem}
-                isLinkEditMode={isLinkEditMode}
-                setIsLinkEditMode={setIsLinkEditMode}
-              />
-              <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
-            </>
-          )}
+              }
+              contentEditable={
+                <div className="min-h-[375px] border-none flex relative outline-none z-0 overflow-auto resize-y">
+                  <div
+                    ref={onRef}
+                    className="flex-auto relative resize-y z-[-1]"
+                  >
+                    <ContentEditable
+                      className="editor-shell relative min-h-[375px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-3"
+                      aria-placeholder={placeholder}
+                    />
+                  </div>
+                </div>
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <DragDropPaste />
+            <ImagesPlugin />
+            <HistoryPlugin />
+            <AutoFocusPlugin />
+            <ListPlugin />
+            <LinkPlugin />
+            <CheckListPlugin />
+            <ListMaxIndentLevelPlugin maxDepth={7} />
+            <TabIndentationPlugin />
+            <AutoLinkPlugin />
+            <CodeHighlightPlugin />
+            {floatingAnchorElem && (
+              <>
+                <FloatingLinkEditorPlugin
+                  anchorElem={floatingAnchorElem}
+                  isLinkEditMode={isLinkEditMode}
+                  setIsLinkEditMode={setIsLinkEditMode}
+                />
+                <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </LexicalComposer>
