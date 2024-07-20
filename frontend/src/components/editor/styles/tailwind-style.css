@@ -12,14 +12,62 @@
         content: attr(data-gutter);
         @apply absolute border border-r border-white/15 left-0 top-0 p-2 pt-4 text-white/30 whitespace-pre-wrap text-right min-w-7 h-full
     }
+    
+    .PlaygroundEditorTheme__listItem {
+      @apply my-0 mx-8
+    }
+    
+    .PlaygroundEditorTheme__listItemChecked,
+    .PlaygroundEditorTheme__listItemUnchecked {
+      @apply relative mx-2 px-6 list-none outline-none
+    }
 
-    .list-item-checked {
-      @apply flex items-center gap-3.5 relative mx-2 px-6 list-none outline-none line-through text-left before:content-[''] before:w-4 before:h-4 before:relative before:cursor-pointer before:block before:bg-cover rtl:before:left-auto rtl:before:right-0 focus:before:rounded-sm focus:before:shadow-sm before:border before:border-blue-400 before:rounded-sm before:bg-blue-400 before:bg-no-repeat after:content-[''] after:cursor-pointer after:border after:border-white after:absolute after:block after:top-2 after:w-[3px] after:left-[12px] after:right-[7px] after:h-1.5 after:rotate-45 after:border-t-0 after:border-r-2 after:border-b-2 after:border-l-0
+    .PlaygroundEditorTheme__listItemChecked {
+      @apply line-through
+    }
+    .PlaygroundEditorTheme__listItemUnchecked:before,
+    .PlaygroundEditorTheme__listItemChecked:before {
+      @apply content-[''] w-4 h-4 top-0.5 left-0 cursor-pointer block bg-cover absolute
+    }
+
+    .PlaygroundEditorTheme__listItemUnchecked[dir='rtl']:before,
+    .PlaygroundEditorTheme__listItemChecked[dir='rtl']:before {
+      @apply left-auto right-0
+    }
+
+    .PlaygroundEditorTheme__listItemUnchecked:focus:before,
+    .PlaygroundEditorTheme__listItemChecked:focus:before {
+      @apply shadow-sm shadow-blue-300
+    }
+
+    .PlaygroundEditorTheme__listItemUnchecked:before {
+      @apply border rounded-sm
+    }
+    
+    .PlaygroundEditorTheme__listItemChecked:before {
+      @apply border border-blue-500 bg-blue-500 bg-no-repeat rounded-sm
+    }
+
+    .PlaygroundEditorTheme__listItemChecked:after {
+      @apply content-[''] cursor-pointer absolute block top-[6px] w-[3px] h-[6px] left-[7px] right-[7px] rotate-45 border-r-2 border-b-2 border-white 
+    }
+
+    .PlaygroundEditorTheme__nestedListItem {
+      @apply list-none
+    }
+
+    .PlaygroundEditorTheme__nestedListItem:before,
+    .PlaygroundEditorTheme__nestedListItem:after {
+      @apply hidden
+    }
+
+    /* .list-item-checked {
+      @apply relative list-none outline-none line-through text-left before:content-[''] before:w-4 before:h-4 before:absolute before:-left-6 before:cursor-pointer before:block before:bg-cover rtl:before:left-auto rtl:before:right-0 focus:before:rounded-sm focus:before:shadow-sm before:border before:border-blue-400 before:rounded-sm before:bg-blue-400 before:bg-no-repeat after:content-[''] after:cursor-pointer after:border after:border-white after:absolute after:block after:top-[5px] after:left-[-18px] after:w-[3px] after:h-1.5 after:rotate-45 after:border-t-0 after:border-r-2 after:border-b-2 after:border-l-0
     }
     
     .list-item-unchecked {
-      @apply flex items-center gap-3.5 relative mx-2 px-6 list-none outline-none text-left before:content-[''] before:w-4 before:h-4 before:relative before:cursor-pointer before:bg-cover rtl:before:left-auto rtl:before:right-0 focus:before:rounded-sm focus:before:shadow-sm before:border before:rounded-sm
-    }
+      @apply p-20 relative list-none outline-none text-left before:content-[''] before:w-4 before:h-4 before:absolute before:-left-6 before:cursor-pointer before:bg-cover rtl:before:left-auto rtl:before:right-0 focus:before:rounded-sm focus:before:shadow-sm before:border before:rounded-sm
+    } */
 
     .token-comment {
       @apply text-[#6A9955];

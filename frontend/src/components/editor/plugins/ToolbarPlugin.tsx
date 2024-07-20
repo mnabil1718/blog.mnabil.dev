@@ -442,7 +442,7 @@ export default function ToolbarPlugin({
           </Toggle>
 
           <Separator orientation="vertical" className="h-8 my-1 mx-2" />
-
+          {/* INSERT DROPDOWN */}
           <InsertDropdown />
         </>
       )}

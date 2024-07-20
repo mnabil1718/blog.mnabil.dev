@@ -42,11 +42,11 @@ const DefaultTheme = {
   image: "editor-image",
   link: "prose-a:hover:cursor-pointer",
   list: {
-    // listitem: "",
-    listitemChecked: "-left-10 list-item-checked",
-    listitemUnchecked: "-left-10 list-item-unchecked",
+    listitem: "not-prose PlaygroundEditorTheme__listItem",
+    listitemChecked: "not-prose PlaygroundEditorTheme__listItemChecked",
+    listitemUnchecked: "not-prose PlaygroundEditorTheme__listItemUnchecked",
     nested: {
-      listitem: "list-none before:hidden after:hidden",
+      listitem: "not-prose PlaygroundEditorTheme__nestedListItem",
     },
     // ol: "editor-list-ol",
     // ul: "prose-ul:list-",
@@ -56,9 +56,10 @@ const DefaultTheme = {
   // placeholder: "editor-placeholder",
   // quote: "editor-quote",
   rtl: "text-right",
+  quote: "not-prose border rounded-md px-3 py-2 text-sm bg-accent",
   text: {
     bold: "font-bold",
-    code: "not-prose font-mono font-bold text-sm",
+    code: "font-mono font-bold text-sm text-[90%]",
     hashtag: "editor-text-hashtag",
     italic: "italic",
     overflowed: "editor-text-overflowed",
