@@ -59,7 +59,7 @@ const CardContentPreview = ({
           <dl>
             <dt className="sr-only">Published on</dt>
             <dd
-              className={`flex gap-1 text-sm font-light leading-6 ${
+              className={`flex gap-1 text-sm font-semibold leading-6 ${
                 isOnBackground ? `text-background` : `text-foreground`
               }`}
             >

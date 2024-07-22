@@ -199,19 +199,19 @@
     /* ================ TABLE OF CONTENT =============== */
 
     .table-of-contents .heading2 {
-      @apply ml-[10px]
+      @apply ml-[0px]
     }
 
     .table-of-contents .heading3 {
-      @apply ml-[20px]
+      @apply ml-[10px]
     }
 
     .table-of-contents .heading4 {
-      @apply ml-[30px]
+      @apply ml-[20px]
     }
 
     .normal-heading {
-      @apply cursor-pointer text-xs font-semibold my-1
+      @apply cursor-pointer text-xs font-semibold my-3
     }
 
     .headings {

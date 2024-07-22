@@ -153,7 +153,7 @@ function TableOfContentsList({
   return (
     <div className="table-of-contents hidden xl:block h-full absolute top-0 left-0 xl:left-7 z-10 w-fit">
       <div className="sticky top-[70px] p-4 w-fit h-fit space-y-2">
-        <h2 className="font-bold">Table of Contents</h2>
+        <h2 className="font-bold">On this page</h2>
         <ul className="headings">
           {tableOfContents.map(([key, text, tag], index) => {
             return (
