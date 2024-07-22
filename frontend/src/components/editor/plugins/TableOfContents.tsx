@@ -15,7 +15,7 @@ import { TableOfContentsPlugin as LexicalTableOfContentsPlugin } from "@lexical/
 import { useEffect, useRef, useState } from "react";
 import * as React from "react";
 
-const MARGIN_ABOVE_EDITOR = 250;
+const MARGIN_ABOVE_EDITOR = 240;
 const HEADING_WIDTH = 9;
 
 function indent(tagName: HeadingTagType) {

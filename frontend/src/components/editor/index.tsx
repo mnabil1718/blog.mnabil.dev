@@ -21,6 +21,7 @@ import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentPlugin";
 import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
 import LinkPlugin from "./plugins/LinkPlugin";
+import DraggableBlockPlugin from "./plugins/DraggableBlockPlugin/DraggableBlockPlugin";
 
 import "./styles/tailwind-style.css";
 
@@ -96,7 +97,7 @@ export default function Editor({
           <div className="relative bg-white">
             <RichTextPlugin
               placeholder={
-                <div className="absolute inline-block pointer-events-none select-none top-[17px] left-[12px] text-base overflow-ellipsis overflow-hidden text-gray-400">
+                <div className="absolute inline-block pointer-events-none select-none top-[17px] left-[29px] text-base overflow-ellipsis overflow-hidden text-gray-400">
                   {placeholder}
                 </div>
               }
@@ -107,7 +108,7 @@ export default function Editor({
                     className="flex-auto relative resize-y z-[-1]"
                   >
                     <ContentEditable
-                      className="editor-shell relative min-h-[375px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-3"
+                      className="editor-shell relative min-h-[375px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-7"
                       aria-placeholder={placeholder}
                     />
                   </div>
@@ -134,6 +135,7 @@ export default function Editor({
                   setIsLinkEditMode={setIsLinkEditMode}
                 />
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+                <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
               </>
             )}
           </div>

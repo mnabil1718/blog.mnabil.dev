@@ -199,15 +199,15 @@
     /* ================ TABLE OF CONTENT =============== */
 
     .table-of-contents .heading2 {
-      margin-left: 10px;
+      @apply ml-[10px]
     }
 
     .table-of-contents .heading3 {
-      margin-left: 20px;
+      @apply ml-[20px]
     }
 
     .table-of-contents .heading4 {
-      margin-left: 30px;
+      @apply ml-[30px]
     }
 
     .normal-heading {
@@ -228,6 +228,28 @@
     .normal-heading-wrapper {
       @apply relative
     }
+
+
+    /* ================ DRAGGABLE BLOCK =============== */
+
+    .draggable-block-menu {
+      @apply absolute left-0 top-0 cursor-grab opacity-0 px-0.5 py-1 rounded-sm
+    } 
+    
+    .draggable-block-menu:active {
+      @apply cursor-grabbing;
+    }
+    
+    .draggable-block-menu:hover {
+      @apply bg-slate-100
+
+    }
+    
+    .draggable-block-target-line {
+      will-change: transform;
+      @apply pointer-events-none h-1 absolute left-0 top-0 opacity-0 bg-sky-400
+    }
+        
 
 
   }
