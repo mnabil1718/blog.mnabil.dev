@@ -6,7 +6,6 @@ import PostTitle from "@/components/post/PostTitle";
 import Tag from "@/components/Tag";
 import { Dot } from "lucide-react";
 import dynamic from "next/dynamic";
-import { Separator } from "@/components/ui/separator";
 
 // have to be imported using dynamic imports
 const EditorReadOnly = dynamic(() => import("@/components/editor/read-only"), {

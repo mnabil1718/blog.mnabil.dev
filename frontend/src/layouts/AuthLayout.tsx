@@ -2,7 +2,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import React from "react";
 
-export default function PublicLayout({
+export default function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -10,9 +10,7 @@ export default function PublicLayout({
   return (
     <>
       <Header />
-      <main className="flex min-h-screen flex-col items-center p-4 border-b">
-        {/* Taking the space of navbar */}
-        <div className="h-[70px]"></div>
+      <main className="relative flex min-h-screen flex-col justify-center items-center p-4 border-b">
         {children}
       </main>
       <Footer />

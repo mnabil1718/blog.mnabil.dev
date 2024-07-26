@@ -59,7 +59,7 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
-	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated) e.g. http://localhost:3000", func(val string) error {
 		cfg.cors.trustedOrigins = strings.Fields(val)
 		return nil
 	})

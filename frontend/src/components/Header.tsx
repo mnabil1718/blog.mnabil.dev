@@ -27,9 +27,9 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 z-40 flex h-[70px] justify-center",
-        "w-full items-center justify-between border border-border bg-white px-4 shadow-sm saturate-100 backdrop-blur-[10px]",
-        isScrolled && "border-transparent bg-background/80"
+        "fixed inset-x-0 z-40 flex h-[70px] justify-center border-b border-border",
+        "w-full items-center justify-between bg-white px-4 shadow-sm saturate-100 backdrop-blur-[10px]",
+        isScrolled && "bg-background/80"
       )}
     >
       <nav className="mx-auto xl:max-w-screen-xl w-full h-[70px] flex items-center justify-between">

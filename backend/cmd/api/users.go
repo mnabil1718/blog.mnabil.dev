@@ -31,36 +31,36 @@ func (app *application) registerUserHandler(writer http.ResponseWriter, request 
 		Email:     createUserRequest.Email,
 		Activated: false,
 	}
-	err = user.Password.Set(createUserRequest.Password)
-	if err != nil {
-		app.badRequestResponse(writer, request, err)
-		return
-	}
+	// err = user.Password.Set(createUserRequest.Password)
+	// if err != nil {
+	// 	app.badRequestResponse(writer, request, err)
+	// 	return
+	// }
 
-	v := validator.New()
-	if data.ValidateUser(v, user); !v.Valid() {
-		app.failedValidationResponse(writer, request, v.Errors)
-		return
-	}
+	// v := validator.New()
+	// if data.ValidateUser(v, user); !v.Valid() {
+	// 	app.failedValidationResponse(writer, request, v.Errors)
+	// 	return
+	// }
 
-	err = app.models.Users.Insert(user)
-	if err != nil {
-		switch {
-		case errors.Is(err, data.ErrDuplicateEmail):
-			v.AddError("email", "email already exists")
-			app.failedValidationResponse(writer, request, v.Errors)
+	// err = app.models.Users.Insert(user)
+	// if err != nil {
+	// 	switch {
+	// 	case errors.Is(err, data.ErrDuplicateEmail):
+	// 		v.AddError("email", "email already exists")
+	// 		app.failedValidationResponse(writer, request, v.Errors)
 
-		default:
-			app.serverErrorResponse(writer, request, err)
-		}
-		return
-	}
+	// 	default:
+	// 		app.serverErrorResponse(writer, request, err)
+	// 	}
+	// 	return
+	// }
 
-	err = app.models.Permissions.AddForUser(user.ID, "movies:read")
-	if err != nil {
-		app.serverErrorResponse(writer, request, err)
-		return
-	}
+	// err = app.models.Permissions.AddForUser(user.ID, "movies:read")
+	// if err != nil {
+	// 	app.serverErrorResponse(writer, request, err)
+	// 	return
+	// }
 
 	// token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
 	// if err != nil {

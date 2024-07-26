@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/gorilla/csrf"
+	"github.com/justinas/nosurf"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 	"github.com/tomasen/realip"
@@ -184,12 +186,14 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 			for _, trustedOrigin := range app.config.cors.trustedOrigins {
 				if origin == trustedOrigin { // make sure it matches trustedOrigin exactly, no partial matches
 					w.Header().Set("Access-Control-Allow-Origin", trustedOrigin)
+					w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 					// if it is a pre-flight CORS request
 					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
 
+						w.Header().Set("Access-Control-Allow-Credentials", "true")
 						w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
-						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-CSRF-Token")
 
 						w.WriteHeader(http.StatusOK)
 						return
@@ -220,5 +224,26 @@ func (app *application) metrics(next http.Handler) http.Handler {
 		totalProcessingTimeMicroseconds.Add(metrics.Duration.Microseconds())
 		totalResponsesSentByStatus.Add(strconv.Itoa(metrics.Code), 1)
 		totalActiveRequests.Set(totalRequestsReceived.Value() - totalResponsesSent.Value())
+	})
+}
+
+func (app *application) noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetFailureHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request Failed. Reason: %v", nosurf.Reason(r))
+		http.Error(w, http.StatusText(nosurf.FailureCode), nosurf.FailureCode)
+	}))
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+	return csrfHandler
+}
+
+func (app *application) csrf(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		csrfMiddleware := csrf.Protect([]byte("5VgBdqris6ZOF8vPGNzj8W4amQEGBZ0N3zMJQVvGUVM="), csrf.SameSite(csrf.SameSiteLaxMode), csrf.Path("/"), csrf.Secure(false), csrf.TrustedOrigins([]string{"http://localhost:3000/"}))
+		csrfMiddleware(next).ServeHTTP(w, r)
 	})
 }
