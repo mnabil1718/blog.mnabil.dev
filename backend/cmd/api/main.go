@@ -9,6 +9,7 @@ import (
 
 	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/jsonlog"
+	"github.com/mnabil1718/blog.mnabil.dev/internal/mailer"
 )
 
 var (
@@ -30,6 +31,13 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 	cors struct {
 		trustedOrigins []string
 	}
@@ -40,6 +48,7 @@ type application struct {
 	config config
 	models data.Models
 	wg     sync.WaitGroup
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -58,6 +67,12 @@ func main() {
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
+
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "ec3025ad72b125", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "373c5780d64d98", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.mnabil.net>", "SMTP sender")
 
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated) e.g. http://localhost:3000", func(val string) error {
 		cfg.cors.trustedOrigins = strings.Fields(val)
