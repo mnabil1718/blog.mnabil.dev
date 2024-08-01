@@ -24,7 +24,9 @@ export default function LoginPage() {
     <AuthLayout>
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-sm rounded-md border border-border px-8 py-10 bg-white">
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Welcome Back
+          </h1>
           <p className="text-sm text-muted-foreground">
             Enter your email & password to sign in to your account
           </p>

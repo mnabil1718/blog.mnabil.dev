@@ -1,20 +1,12 @@
 package main
 
 import (
-	"errors"
-	"expvar"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/felixge/httpsnoop"
-	"github.com/gorilla/csrf"
 	"github.com/justinas/nosurf"
-	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
-	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 )
@@ -88,93 +80,93 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) authenticate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Vary", "Authorization")
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			r = app.contextSetUser(r, data.AnonymousUser)
-			next.ServeHTTP(w, r)
-			return
-		}
+// func (app *application) authenticate(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		w.Header().Add("Vary", "Authorization")
+// 		authHeader := r.Header.Get("Authorization")
+// 		if authHeader == "" {
+// 			r = app.contextSetUser(r, data.AnonymousUser)
+// 			next.ServeHTTP(w, r)
+// 			return
+// 		}
 
-		headerParts := strings.Split(authHeader, " ")
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			app.invalidAuthenticationTokenResponse(w, r)
-			return
-		}
+// 		headerParts := strings.Split(authHeader, " ")
+// 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+// 			app.invalidAuthenticationTokenResponse(w, r)
+// 			return
+// 		}
 
-		token := headerParts[1]
-		v := validator.New()
+// 		token := headerParts[1]
+// 		v := validator.New()
 
-		if data.ValidateTokenPlaintext(v, token); !v.Valid() {
-			app.invalidAuthenticationTokenResponse(w, r)
-			return
-		}
+// 		if data.ValidateTokenPlaintext(v, token); !v.Valid() {
+// 			app.invalidAuthenticationTokenResponse(w, r)
+// 			return
+// 		}
 
-		user, err := app.models.Users.GetForToken(data.ScopeAuthentication, token)
-		if err != nil {
-			switch {
-			case errors.Is(err, data.ErrRecordNotFound):
-				app.invalidAuthenticationTokenResponse(w, r)
-			default:
-				app.serverErrorResponse(w, r, err)
-			}
-			return
-		}
+// 		user, err := app.models.Users.GetForToken(data.ScopeAuthentication, token)
+// 		if err != nil {
+// 			switch {
+// 			case errors.Is(err, data.ErrRecordNotFound):
+// 				app.invalidAuthenticationTokenResponse(w, r)
+// 			default:
+// 				app.serverErrorResponse(w, r, err)
+// 			}
+// 			return
+// 		}
 
-		r = app.contextSetUser(r, user)
-		next.ServeHTTP(w, r)
-	})
-}
+// 		r = app.contextSetUser(r, user)
+// 		next.ServeHTTP(w, r)
+// 	})
+// }
 
-// it returns http.HandlerFunc so we could wrap this over our /v1/movies** routes
-func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := app.contextGetUser(r)
-		if user.IsAnonymous() {
-			app.unauthorizedResponse(w, r)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
+// // it returns http.HandlerFunc so we could wrap this over our /v1/movies** routes
+// func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		user := app.contextGetUser(r)
+// 		if user.IsAnonymous() {
+// 			app.unauthorizedResponse(w, r)
+// 			return
+// 		}
+// 		next.ServeHTTP(w, r)
+// 	})
+// }
 
-func (app *application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
-	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := app.contextGetUser(r)
+// func (app *application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+// 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		user := app.contextGetUser(r)
 
-		if !user.Activated {
-			app.inactivateAccountResponse(w, r)
-			return
-		}
+// 		if !user.Activated {
+// 			app.inactivateAccountResponse(w, r)
+// 			return
+// 		}
 
-		next.ServeHTTP(w, r)
-	})
+// 		next.ServeHTTP(w, r)
+// 	})
 
-	return app.requireAuthenticatedUser(fn)
-}
+// 	return app.requireAuthenticatedUser(fn)
+// }
 
-func (app *application) requirePermission(permissionCode string, next http.HandlerFunc) http.HandlerFunc {
-	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := app.contextGetUser(r)
+// func (app *application) requirePermission(permissionCode string, next http.HandlerFunc) http.HandlerFunc {
+// 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		user := app.contextGetUser(r)
 
-		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
+// 		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+// 		if err != nil {
+// 			app.serverErrorResponse(w, r, err)
+// 			return
+// 		}
 
-		if !permissions.Include(permissionCode) {
-			app.notPermittedResponse(w, r)
-			return
-		}
+// 		if !permissions.Include(permissionCode) {
+// 			app.notPermittedResponse(w, r)
+// 			return
+// 		}
 
-		next.ServeHTTP(w, r)
-	})
+// 		next.ServeHTTP(w, r)
+// 	})
 
-	return app.requireActivatedUser(fn)
-}
+// 	return app.requireActivatedUser(fn)
+// }
 
 func (app *application) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -206,44 +198,38 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) metrics(next http.Handler) http.Handler {
-	totalRequestsReceived := expvar.NewInt("total_requests_received")
-	totalResponsesSent := expvar.NewInt("total_responses_sent")
-	totalProcessingTimeMicroseconds := expvar.NewInt("total_processing_time_μs")
-	totalActiveRequests := expvar.NewInt("total_active_requests")
-	totalResponsesSentByStatus := expvar.NewMap("total_responses_sent_by_status")
+// func (app *application) metrics(next http.Handler) http.Handler {
+// 	totalRequestsReceived := expvar.NewInt("total_requests_received")
+// 	totalResponsesSent := expvar.NewInt("total_responses_sent")
+// 	totalProcessingTimeMicroseconds := expvar.NewInt("total_processing_time_μs")
+// 	totalActiveRequests := expvar.NewInt("total_active_requests")
+// 	totalResponsesSentByStatus := expvar.NewMap("total_responses_sent_by_status")
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		totalRequestsReceived.Add(1)
+// 		totalRequestsReceived.Add(1)
 
-		metrics := httpsnoop.CaptureMetrics(next, w, r)
+// 		metrics := httpsnoop.CaptureMetrics(next, w, r)
 
-		totalResponsesSent.Add(1)
+// 		totalResponsesSent.Add(1)
 
-		totalProcessingTimeMicroseconds.Add(metrics.Duration.Microseconds())
-		totalResponsesSentByStatus.Add(strconv.Itoa(metrics.Code), 1)
-		totalActiveRequests.Set(totalRequestsReceived.Value() - totalResponsesSent.Value())
-	})
-}
+// 		totalProcessingTimeMicroseconds.Add(metrics.Duration.Microseconds())
+// 		totalResponsesSentByStatus.Add(strconv.Itoa(metrics.Code), 1)
+// 		totalActiveRequests.Set(totalRequestsReceived.Value() - totalResponsesSent.Value())
+// 	})
+// }
 
 func (app *application) noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetFailureHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("Request Failed. Reason: %v", nosurf.Reason(r))
-		http.Error(w, http.StatusText(nosurf.FailureCode), nosurf.FailureCode)
+		app.logger.PrintError(nosurf.Reason(r), nil)
+		app.badRequestResponse(w, r, nosurf.Reason(r))
 	}))
+
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
 		Path:     "/",
 		Secure:   true,
 	})
 	return csrfHandler
-}
-
-func (app *application) csrf(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		csrfMiddleware := csrf.Protect([]byte("5VgBdqris6ZOF8vPGNzj8W4amQEGBZ0N3zMJQVvGUVM="), csrf.SameSite(csrf.SameSiteLaxMode), csrf.Path("/"), csrf.Secure(false), csrf.TrustedOrigins([]string{"http://localhost:3000/"}))
-		csrfMiddleware(next).ServeHTTP(w, r)
-	})
 }
