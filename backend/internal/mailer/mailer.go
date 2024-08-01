@@ -6,20 +6,19 @@ import (
 	"text/template"
 	"time"
 
-	"gopkg.in/mail.v2"
+	"gopkg.in/gomail.v2"
 )
 
 //go:embed "templates"
 var templateFS embed.FS
 
 type Mailer struct {
-	dialer *mail.Dialer
+	dialer *gomail.Dialer
 	sender string
 }
 
 func New(host string, port int, username, password, sender string) Mailer {
-	dialer := mail.NewDialer(host, port, username, password)
-	dialer.Timeout = 5 * time.Second
+	dialer := gomail.NewDialer(host, port, username, password)
 
 	return Mailer{
 		dialer: dialer,
@@ -51,7 +50,7 @@ func (m Mailer) Send(recipient string, templateFile string, data interface{}) er
 		return err
 	}
 
-	msg := mail.NewMessage()
+	msg := gomail.NewMessage()
 	msg.SetHeader("To", recipient)
 	msg.SetHeader("From", m.sender)
 	msg.SetHeader("Subject", subject.String())

@@ -17,10 +17,11 @@ var (
 )
 
 type config struct {
-	port int
-	env  string
-	host string
-	db   struct {
+	port        int
+	env         string
+	host        string
+	frontendUrl string
+	db          struct {
 		dsn          string
 		maxOpenConns int
 		maxIdleConns int
@@ -58,6 +59,8 @@ func main() {
 	flag.StringVar(&cfg.host, "host", "localhost", "Application Server Hostname")
 	flag.IntVar(&cfg.port, "port", 8080, "Application Server Port Number")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://blog:Cucibaju123@localhost:5432/blog", "PostgreSQL Connection String")
+	flag.StringVar(&cfg.frontendUrl, "frontend-url", "http://localhost:3000", "Frontend URL")
+
 	flag.StringVar(&cfg.env, "env", "dev", "Application Environment: (dev|staging|prod)")
 
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
@@ -72,7 +75,7 @@ func main() {
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "ec3025ad72b125", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "373c5780d64d98", "SMTP password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.mnabil.net>", "SMTP sender")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "blog.mnabil.dev <no-reply@blog.mnabil.dev>", "SMTP sender")
 
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated) e.g. http://localhost:3000", func(val string) error {
 		cfg.cors.trustedOrigins = strings.Fields(val)
@@ -102,6 +105,7 @@ func main() {
 		logger: logger,
 		config: cfg,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serve()

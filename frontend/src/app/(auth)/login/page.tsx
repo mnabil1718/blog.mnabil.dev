@@ -3,8 +3,23 @@
 import Link from "next/link";
 import AuthLayout from "@/layouts/AuthLayout";
 import LoginForm from "@/components/auth/LoginForm";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {
+  const urlQueryParams = useSearchParams();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (urlQueryParams.has("activationSuccess")) {
+      toast({
+        title: "Success!",
+        description: "Activation Successful. Please login to your account.",
+      });
+    }
+  }, [toast, urlQueryParams]);
+
   return (
     <AuthLayout>
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-sm rounded-md border border-border px-8 py-10 bg-white">

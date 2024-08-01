@@ -14,11 +14,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/tokens/csrf", app.getCsrfTokenHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthTokenHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/tokens/activation", app.createActivationTokenHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", app.activateUserHandler)
-
-	// csrfMiddleware := csrf.Protect([]byte("5VgBdqris6ZOF8vPGNzj8W4amQEGBZ0N3zMJQVvGUVM="), csrf.HttpOnly(true), csrf.SameSite(csrf.SameSiteLaxMode), csrf.Path("/"), csrf.Secure(false))
 
 	return app.recoverPanic(app.enableCORS(app.rateLimit(app.noSurf(router))))
 }

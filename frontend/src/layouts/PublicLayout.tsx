@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/toaster";
 import React from "react";
 
 export default function PublicLayout({
@@ -15,6 +16,7 @@ export default function PublicLayout({
         <div className="h-[70px]"></div>
         {children}
       </main>
+      <Toaster />
       <Footer />
     </>
   );

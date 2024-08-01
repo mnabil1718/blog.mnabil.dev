@@ -16,16 +16,17 @@ const useCsrfToken = () => {
           }
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch CSRF token");
-        }
-        const { token } = await response.json();
-        setCsrfToken(token);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
+          setError("Failed to fetch CSRF token");
         } else {
-          throw error;
+          const { token } = await response.json();
+          setCsrfToken(token);
         }
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "an Unexpected error occurred"
+        );
       } finally {
         setLoading(false);
       }
