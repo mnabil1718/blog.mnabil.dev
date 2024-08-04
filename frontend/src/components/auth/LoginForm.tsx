@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { Eye, EyeOff, LoaderCircle, User } from "lucide-react";
 import useFetchCsrf from "@/hooks/useFetchCsrf";
 import { useToast } from "../ui/use-toast";
+import useAuthStore from "@/stores/authStore";
 
 const schema = z.object({
   email: z.string().email(),
@@ -27,6 +28,8 @@ const schema = z.object({
 });
 
 const LoginForm = () => {
+  const setAuthToken = useAuthStore((state) => state.setToken);
+  const setUser = useAuthStore((state) => state.setUser);
   const { loading, error, csrfToken } = useFetchCsrf();
   const { toast } = useToast();
 
@@ -59,6 +62,16 @@ const LoginForm = () => {
       let resp = await instance.post(endpoint, {
         email: values.email,
         password: values.password,
+      });
+
+      const data = resp.data;
+      setAuthToken(data.authentication_token.token);
+      setUser({
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        activated: data.user.activated,
+        created_at: data.user.created_at,
       });
       success = true;
     } catch (error) {

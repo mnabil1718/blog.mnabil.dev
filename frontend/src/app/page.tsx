@@ -1,4 +1,3 @@
-import Editor from "@/components/editor";
 import FeaturedPosts from "@/components/homepage/featured/FeaturedPosts";
 import LatestPosts from "@/components/homepage/Latest/LatestPosts";
 import PublicLayout from "@/layouts/PublicLayout";

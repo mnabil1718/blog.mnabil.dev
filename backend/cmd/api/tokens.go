@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
@@ -16,6 +17,49 @@ type CreateAuthTokenRequest struct {
 
 type ResendActivationTokenRequest struct {
 	Email string `json:"email"`
+}
+
+type RevokeAuthTokenRequest struct {
+	TokenPlainText string `json:"token"`
+}
+
+func (app *application) revokeAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
+
+	token := strings.Split(r.Header.Get("Authorization"), " ")[1]
+
+	user, err := app.models.Users.GetForToken(data.ScopeAuthentication, token)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.invalidAuthenticationTokenResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.models.Tokens.DeleteForAllUser(data.ScopeAuthentication, user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	expiredCookie := &http.Cookie{
+		Name:     "authentication_token",
+		Path:     "/",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	}
+	http.SetCookie(w, expiredCookie)
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "authentication token sucessfully revoked"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) createAuthTokenHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +120,7 @@ func (app *application) createAuthTokenHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	http.SetCookie(w, cookie)
-	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": token}, nil)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": token, "user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

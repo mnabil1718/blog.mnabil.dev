@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const useCsrfToken = () => {
+const useFetchCsrf = () => {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,4 +38,4 @@ const useCsrfToken = () => {
   return { csrfToken, error, loading };
 };
 
-export default useCsrfToken;
+export default useFetchCsrf;

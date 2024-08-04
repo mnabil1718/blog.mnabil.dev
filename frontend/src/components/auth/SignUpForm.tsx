@@ -5,7 +5,6 @@ import axios, { isAxiosError } from "axios";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -20,30 +19,20 @@ import { cn } from "@/lib/utils";
 import { Eye, EyeOff, LoaderCircle, User } from "lucide-react";
 import useFetchCsrf from "@/hooks/useFetchCsrf";
 import { useToast } from "../ui/use-toast";
-
-const schema = z
-  .object({
-    name: z.string().min(1).max(200),
-    email: z.string().email(),
-    password: z.string().min(6, "password must be longer than 6 characters"),
-    password_confirmation: z.string(),
-  })
-  .refine((data) => data.password === data.password_confirmation, {
-    message: "Passwords don't match",
-    path: ["password_confirmation"],
-  });
+import { signUpSchema, signUpSchemaType } from "@/validations/signup";
+import { signupAction } from "@/actions/auth";
 
 const SignUpForm = () => {
-  const { loading, error, csrfToken } = useFetchCsrf();
+  const { error, csrfToken, loading } = useFetchCsrf();
   const { toast } = useToast();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
   const [passwordConfirmationVisible, setpasswordConfirmationVisible] =
     useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  const form = useForm<signUpSchemaType>({
+    resolver: zodResolver(signUpSchema),
+    mode: "onChange",
     defaultValues: {
       // important so you won't get this uncontrolled error. see: https://reactjs.org/link/controlled-components
       name: "",
@@ -53,26 +42,23 @@ const SignUpForm = () => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof schema>) {
-    const endpoint = "/users";
-
-    const instance = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-      timeout: 1000,
-      headers: {
-        "X-CSRF-Token": csrfToken,
-      },
-      withCredentials: true,
-    });
-
-    setIsLoading(true);
+  async function onSubmit(values: signUpSchemaType) {
     let success: boolean = false;
     try {
-      let resp = await instance.post(endpoint, {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      });
+      let resp = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
+        {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        },
+        {
+          headers: {
+            "X-CSRF-Token": csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
       success = true;
     } catch (error) {
       let message = "Failed to submit data";
@@ -98,8 +84,6 @@ const SignUpForm = () => {
         description: message,
       });
     } finally {
-      setIsLoading(false);
-
       if (success) {
         form.reset();
         toast({
@@ -263,9 +247,11 @@ const SignUpForm = () => {
         <Button
           type="submit"
           className="w-full flex items-center gap-2"
-          disabled={loading || isLoading}
+          disabled={form.formState.isSubmitting || !form.formState.isValid}
         >
-          {(loading || isLoading) && <LoaderCircle className="animate-spin" />}{" "}
+          {form.formState.isSubmitting && (
+            <LoaderCircle className="animate-spin" />
+          )}{" "}
           Submit
         </Button>
       </form>

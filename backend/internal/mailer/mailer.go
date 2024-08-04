@@ -60,7 +60,7 @@ func (m Mailer) Send(recipient string, templateFile string, data interface{}) er
 	// if fails retry 3 times
 	for range 3 {
 		err = m.dialer.DialAndSend(msg)
-		if nil == err { // nil first to stand out more amongst err != nil
+		if nil == err { // nil first to stand out more amongst err == nil
 			return nil
 		}
 

@@ -17,6 +17,12 @@ export default function LoginPage() {
         title: "Success!",
         description: "Activation Successful. Please login to your account.",
       });
+    } else if (urlQueryParams.has("authenticationFail")) {
+      toast({
+        variant: "destructive",
+        title: "Oops, Something Went Wrong!",
+        description: "You are not authenticated to do that action.",
+      });
     }
   }, [toast, urlQueryParams]);
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AuthLayout from "@/layouts/AuthLayout";
 import SignUpForm from "@/components/auth/SignUpForm";
+import { getCsrfToken } from "@/utils/fetch_tokens";
 
 export default function SignUpPage() {
   return (
