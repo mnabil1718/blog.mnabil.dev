@@ -1,30 +1,12 @@
-"use client";
-
 import Link from "next/link";
 import AuthLayout from "@/layouts/AuthLayout";
 import LoginForm from "@/components/auth/LoginForm";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { headers } from "next/headers";
+import { protectAnonymousPage } from "@/actions/auth";
 
-export default function LoginPage() {
-  const urlQueryParams = useSearchParams();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (urlQueryParams.has("activationSuccess")) {
-      toast({
-        title: "Success!",
-        description: "Activation Successful. Please login to your account.",
-      });
-    } else if (urlQueryParams.has("authenticationFail")) {
-      toast({
-        variant: "destructive",
-        title: "Oops, Something Went Wrong!",
-        description: "You are not authenticated to do that action.",
-      });
-    }
-  }, [toast, urlQueryParams]);
+export default async function LoginPage() {
+  await protectAnonymousPage();
+  const csrfToken = headers().get("X-CSRF-Token") || "missing";
 
   return (
     <AuthLayout>
@@ -38,7 +20,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <LoginForm />
+        <LoginForm csrfToken={csrfToken} />
 
         <span className="px-8 text-center text-sm text-muted-foreground">
           <Link

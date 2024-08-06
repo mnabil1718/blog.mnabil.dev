@@ -1,10 +1,12 @@
-"use client";
-
-import Link from "next/link";
 import AuthLayout from "@/layouts/AuthLayout";
 import ResendActivationForm from "@/components/auth/ResendActivationForm";
+import { protectAnonymousPage } from "@/actions/auth";
+import { headers } from "next/headers";
 
-export default function ResendActivationPage() {
+export default async function ResendActivationPage() {
+  await protectAnonymousPage();
+  const csrfToken = headers().get("X-CSRF-Token") || "missing";
+
   return (
     <AuthLayout>
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-sm rounded-md border border-border px-8 py-10 bg-white">
@@ -18,7 +20,7 @@ export default function ResendActivationPage() {
           </p>
         </div>
 
-        <ResendActivationForm />
+        <ResendActivationForm csrfToken={csrfToken} />
       </div>
     </AuthLayout>
   );

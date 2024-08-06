@@ -51,7 +51,7 @@ func (app *application) revokeAuthTokenHandler(w http.ResponseWriter, r *http.Re
 		Value:    "",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   app.getSecureCookieFlag(),
 		SameSite: http.SameSiteNoneMode,
 	}
 	http.SetCookie(w, expiredCookie)
@@ -115,7 +115,7 @@ func (app *application) createAuthTokenHandler(w http.ResponseWriter, r *http.Re
 		Value:    token.Plaintext,
 		Expires:  token.ExpiryTime,
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   app.getSecureCookieFlag(),
 		SameSite: http.SameSiteNoneMode,
 	}
 

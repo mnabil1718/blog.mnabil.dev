@@ -174,3 +174,11 @@ func (app *application) background(fn func()) {
 		fn()
 	}()
 }
+
+func (app *application) getSecureCookieFlag() bool {
+	secureFlag := false
+	if app.config.env == "prod" {
+		secureFlag = true
+	}
+	return secureFlag
+}

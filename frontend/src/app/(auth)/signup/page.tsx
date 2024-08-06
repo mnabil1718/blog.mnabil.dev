@@ -1,9 +1,12 @@
 import Link from "next/link";
 import AuthLayout from "@/layouts/AuthLayout";
 import SignUpForm from "@/components/auth/SignUpForm";
-import { getCsrfToken } from "@/utils/fetch_tokens";
+import { headers } from "next/headers";
+import { protectAnonymousPage } from "@/actions/auth";
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  await protectAnonymousPage();
+  const csrfToken = headers().get("X-CSRF-Token") || "missing";
   return (
     <AuthLayout>
       <div className="h-[70px]"></div>
@@ -15,7 +18,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <SignUpForm />
+        <SignUpForm csrfToken={csrfToken} />
 
         <span className="px-8 text-center text-sm text-muted-foreground">
           <Link

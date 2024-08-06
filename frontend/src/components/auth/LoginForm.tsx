@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios, { isAxiosError } from "axios";
-
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -18,111 +15,42 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff, LoaderCircle, User } from "lucide-react";
-import useFetchCsrf from "@/hooks/useFetchCsrf";
 import { useToast } from "../ui/use-toast";
-import useAuthStore from "@/stores/authStore";
+import { loginSchema, loginSchemaType } from "@/validations/login";
+import { loginAction } from "@/actions/auth";
+import objectToFormData from "@/utils/object-to-form-data";
+import { showErrorToast } from "@/utils/show-toasts";
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1, "password is required"),
-});
-
-const LoginForm = () => {
-  const setAuthToken = useAuthStore((state) => state.setToken);
-  const setUser = useAuthStore((state) => state.setUser);
-  const { loading, error, csrfToken } = useFetchCsrf();
+const LoginForm = ({ csrfToken }: { csrfToken: string }) => {
   const { toast } = useToast();
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  const form = useForm<loginSchemaType>({
+    mode: "onChange",
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof schema>) {
-    const endpoint = "/tokens/authentication";
-
-    const instance = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-      timeout: 1000,
-      headers: {
-        "X-CSRF-Token": csrfToken,
-      },
-      withCredentials: true,
+  const onSubmit = form.handleSubmit(async (data) => {
+    const formData = objectToFormData({
+      ...data,
+      csrf_token: csrfToken,
     });
-
-    setIsLoading(true);
-    let success: boolean = false;
-    try {
-      let resp = await instance.post(endpoint, {
-        email: values.email,
-        password: values.password,
-      });
-
-      const data = resp.data;
-      setAuthToken(data.authentication_token.token);
-      setUser({
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        activated: data.user.activated,
-        created_at: data.user.created_at,
-      });
-      success = true;
-    } catch (error) {
-      let message = "Failed to submit data";
-      if (isAxiosError(error)) {
-        const errors = error.response?.data.error;
-
-        if (errors) {
-          if (typeof errors === "object") {
-            message = Object.entries(errors)
-              .map(([_, msg]) => `${msg}`)
-              .join(", ");
-          } else {
-            message = errors;
-          }
-        }
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-
-      toast({
-        variant: "destructive",
-        title: "Oops, Something Went Wrong!",
-        description: message,
-      });
-    } finally {
-      setIsLoading(false);
-
-      if (success) {
-        form.reset();
-        toast({
-          title: "Success!",
-          description: "Login successful",
-        });
-      }
+    // if we pass loginSchemaType as data, csrf middleware cannot find token
+    // it must be passed as form data with field 'csrf_token'
+    const response = await loginAction(formData);
+    if (response?.error) {
+      showErrorToast(toast, response.error);
     }
-  }
-
-  useEffect(() => {
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops, Something Went Wrong!",
-        description: error,
-      });
-    }
-  }, [error, toast]);
+    form.reset();
+  });
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+      <form onSubmit={onSubmit} className="space-y-3">
         <FormField
           control={form.control}
           name="email"
@@ -188,9 +116,11 @@ const LoginForm = () => {
         <Button
           type="submit"
           className="w-full flex items-center gap-2"
-          disabled={loading || isLoading}
+          disabled={form.formState.isSubmitting || !form.formState.isValid}
         >
-          {(loading || isLoading) && <LoaderCircle className="animate-spin" />}{" "}
+          {form.formState.isSubmitting && (
+            <LoaderCircle className="animate-spin" />
+          )}{" "}
           Log in
         </Button>
       </form>

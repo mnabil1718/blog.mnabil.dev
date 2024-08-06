@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios, { isAxiosError } from "axios";
+import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,15 +16,15 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff, LoaderCircle, User } from "lucide-react";
-import useFetchCsrf from "@/hooks/useFetchCsrf";
-import { useToast } from "../ui/use-toast";
 import { signUpSchema, signUpSchemaType } from "@/validations/signup";
 import { signupAction } from "@/actions/auth";
+import objectToFormData from "@/utils/object-to-form-data";
+import { AuthActionResponse } from "@/actions/auth-types";
+import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
+import { useToast } from "../ui/use-toast";
 
-const SignUpForm = () => {
-  const { error, csrfToken, loading } = useFetchCsrf();
+const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
   const { toast } = useToast();
-
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
   const [passwordConfirmationVisible, setpasswordConfirmationVisible] =
     useState<boolean>(false);
@@ -42,72 +41,32 @@ const SignUpForm = () => {
     },
   });
 
-  async function onSubmit(values: signUpSchemaType) {
-    let success: boolean = false;
-    try {
-      let resp = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
-        {
-          name: values.name,
-          email: values.email,
-          password: values.password,
-        },
-        {
-          headers: {
-            "X-CSRF-Token": csrfToken,
-          },
-          withCredentials: true,
-        }
-      );
-      success = true;
-    } catch (error) {
-      let message = "Failed to submit data";
-      if (isAxiosError(error)) {
-        const errors = error.response?.data.error;
-
-        if (errors) {
-          if (typeof errors === "object") {
-            message = Object.entries(errors)
-              .map(([_, msg]) => `${msg}`)
-              .join(", ");
-          } else {
-            message = errors;
-          }
-        }
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-
-      toast({
-        variant: "destructive",
-        title: "Oops, Something Went Wrong!",
-        description: message,
-      });
-    } finally {
-      if (success) {
-        form.reset();
-        toast({
-          title: "Success!",
-          description:
-            "We've sent an activation link to your email. Please check your email to activate your account.",
+  const onSubmit = form.handleSubmit(async (data) => {
+    const formData = objectToFormData({
+      ...data,
+      csrf_token: csrfToken,
+    });
+    const response: AuthActionResponse = await signupAction(formData);
+    if (response?.error && typeof response?.error === "string") {
+      showErrorToast(toast, response.error);
+    } else if (response?.error && typeof response?.error === "object") {
+      for (const [key, message] of Object.entries(response.error)) {
+        form.setError(key as keyof signUpSchemaType, {
+          type: "manual",
+          message,
         });
       }
     }
-  }
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops, Something Went Wrong!",
-        description: error,
-      });
+    if (response?.message) {
+      showSuccessToast(toast, response.message);
+      form.reset();
     }
-  }, [error, toast]);
+  });
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+      <form onSubmit={onSubmit} className="space-y-3">
         <FormField
           control={form.control}
           name="name"
