@@ -8,6 +8,11 @@ export interface SessionUser {
   created_at: string; // time
 }
 
+export interface SessionToken {
+  token: string;
+  expiry_time: string; //time
+}
+
 export const EmptyUser: SessionUser = {
   id: 0,
   name: "",
@@ -16,13 +21,18 @@ export const EmptyUser: SessionUser = {
   created_at: "",
 };
 
+export const EmptyToken: SessionToken = {
+  token: "",
+  expiry_time: "",
+};
+
 export interface SessionData {
   user: SessionUser;
-  authentication_token: string;
+  authentication_token: SessionToken;
 }
 
 export const DefaultSession: SessionData = {
-  authentication_token: "",
+  authentication_token: EmptyToken,
   user: EmptyUser,
 };
 

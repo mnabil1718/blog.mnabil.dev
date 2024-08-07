@@ -1,10 +1,9 @@
 import AuthLayout from "@/layouts/AuthLayout";
 import ResendActivationForm from "@/components/auth/ResendActivationForm";
-import { protectAnonymousPage } from "@/actions/auth";
 import { headers } from "next/headers";
+import CheckURLSearchParams from "@/components/CheckURLSearchParams";
 
 export default async function ResendActivationPage() {
-  await protectAnonymousPage();
   const csrfToken = headers().get("X-CSRF-Token") || "missing";
 
   return (

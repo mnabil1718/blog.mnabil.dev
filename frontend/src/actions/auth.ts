@@ -1,12 +1,12 @@
 "use server";
 
 import { DefaultSession, SessionData, sessionOptions } from "@/lib/session";
-import { loginSchemaType } from "@/validations/login";
-import { signUpSchemaType } from "@/validations/signup";
+import { constructUrl } from "@/utils/construct-url";
+import { encodeQueryParams } from "@/utils/encode-query-params";
 import axios, { isAxiosError } from "axios";
-import { getIronSession } from "iron-session";
+import { getIronSession, IronSession } from "iron-session";
 import { revalidatePath } from "next/cache";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function getSession() {
@@ -20,25 +20,16 @@ export async function getSession() {
   return session;
 }
 
-export async function protectAuthPage() {
+export async function setSession(data: SessionData) {
   const session = await getSession();
-  if (
-    !session.authentication_token ||
-    session.authentication_token == "" ||
-    session.user.activated == false
-  ) {
-    redirect("/login");
-  }
-}
-
-export async function protectAnonymousPage() {
-  const session = await getSession();
-  if (session.authentication_token && session.authentication_token != "") {
-    redirect("/dashboard");
-  }
+  session.authentication_token = data.authentication_token;
+  session.user = data.user;
+  await session.save();
 }
 
 export async function loginAction(formData: FormData) {
+  const nextUrl = formData.get("nextUrl") as string;
+
   try {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
@@ -49,10 +40,11 @@ export async function loginAction(formData: FormData) {
         password: password,
       }
     );
-    const session = await getSession();
-    session.authentication_token = res.data.authentication_token.token;
-    session.user = res.data.user;
-    await session.save();
+
+    await setSession({
+      authentication_token: res.data.authentication_token,
+      user: res.data.user,
+    });
   } catch (error) {
     let details = "Failed to submit data";
     if (isAxiosError(error)) {
@@ -72,31 +64,38 @@ export async function loginAction(formData: FormData) {
   }
 
   revalidatePath("/login");
-  redirect("/dashboard"); // for some bloody reason, cannot be used in a try catch block
+  redirect(nextUrl); // for some bloody reason, cannot be used in a try catch block
 }
 
 // do not delete formData since it is used by csrf_token middleware
 export async function logoutAction(formData: FormData) {
-  var hasError = false;
+  var errorDetails: string = "";
   try {
     const session = await getSession();
-    const res = await axios.delete(
+    await axios.delete(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/tokens/authentication`,
       {
         headers: {
-          Authorization: `Bearer ${session.authentication_token}`,
+          Authorization: `Bearer ${session.authentication_token.token}`,
         },
       }
     );
-
-    session.authentication_token = DefaultSession.authentication_token;
-    session.user = DefaultSession.user;
-    await session.save();
+    session.destroy();
   } catch (error) {
-    hasError = true;
+    if (isAxiosError(error)) {
+      const errorDetail = error.response?.data.error;
+      errorDetails = errorDetail;
+    } else if (error instanceof Error) {
+      errorDetails = error.message;
+    }
   }
 
-  redirect("/login"); // for some bloody reason, cannot be used in a try catch block
+  const url = constructUrl("/login", {
+    flash_type: errorDetails != "" ? "error" : "success",
+    flash_message:
+      errorDetails != "" ? errorDetails : "Successfully logged out",
+  });
+  redirect(url);
 }
 
 export async function signupAction(formData: FormData) {
@@ -147,7 +146,11 @@ export async function activationAction(formData: FormData) {
   }
 
   revalidatePath("/activation");
-  redirect("/login");
+  const flash = encodeQueryParams({
+    flash_type: "success",
+    flash_message: "Activation successful. Please log in to your account",
+  });
+  redirect(`/login?${flash}`);
 }
 
 export async function resendActivationAction(formData: FormData) {

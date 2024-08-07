@@ -21,7 +21,13 @@ import { loginAction } from "@/actions/auth";
 import objectToFormData from "@/utils/object-to-form-data";
 import { showErrorToast } from "@/utils/show-toasts";
 
-const LoginForm = ({ csrfToken }: { csrfToken: string }) => {
+const LoginForm = ({
+  csrfToken,
+  nextUrl,
+}: {
+  csrfToken: string;
+  nextUrl: string;
+}) => {
   const { toast } = useToast();
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
 
@@ -38,6 +44,7 @@ const LoginForm = ({ csrfToken }: { csrfToken: string }) => {
     const formData = objectToFormData({
       ...data,
       csrf_token: csrfToken,
+      nextUrl: nextUrl,
     });
     // if we pass loginSchemaType as data, csrf middleware cannot find token
     // it must be passed as form data with field 'csrf_token'

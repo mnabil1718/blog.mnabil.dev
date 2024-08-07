@@ -1,12 +1,12 @@
-import { getSession, protectAuthPage } from "@/actions/auth";
+import CheckURLSearchParams from "@/components/CheckURLSearchParams";
 import CmsLayout from "@/layouts/CmsLayout";
-import { redirect } from "next/navigation";
 
-export default async function DashboardPage() {
-  await protectAuthPage();
+export default function DashboardPage() {
   return (
     <CmsLayout>
-      <div className="mx-auto w-full xl:max-w-screen-xl"></div>
+      <div className="mx-auto w-full xl:max-w-screen-xl">
+        <CheckURLSearchParams />
+      </div>
     </CmsLayout>
   );
 }

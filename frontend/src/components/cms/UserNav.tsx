@@ -25,7 +25,7 @@ export function UserNav({
   const logoutHandler = async () => {
     const data = { csrf_token: csrfToken };
     const formData = objectToFormData(data);
-    const response = await logoutAction(formData);
+    await logoutAction(formData);
   };
   return (
     <DropdownMenu>

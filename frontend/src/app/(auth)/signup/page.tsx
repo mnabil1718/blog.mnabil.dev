@@ -2,10 +2,8 @@ import Link from "next/link";
 import AuthLayout from "@/layouts/AuthLayout";
 import SignUpForm from "@/components/auth/SignUpForm";
 import { headers } from "next/headers";
-import { protectAnonymousPage } from "@/actions/auth";
 
 export default async function SignUpPage() {
-  await protectAnonymousPage();
   const csrfToken = headers().get("X-CSRF-Token") || "missing";
   return (
     <AuthLayout>
