@@ -1,9 +1,16 @@
 import { CsrfError, createCsrfProtect } from "@edge-csrf/nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getSession } from "./actions/auth";
+import {
+  getSession,
+  logoutAction,
+  revokeSession,
+  setSession,
+} from "./actions/auth";
 import { encodeQueryParams } from "./utils/encode-query-params";
 import { constructUrl } from "./utils/construct-url";
+import objectToFormData from "./utils/object-to-form-data";
+import { DefaultSession } from "./lib/session";
 
 const csrfProtect = createCsrfProtect({
   cookie: {
@@ -51,26 +58,6 @@ export async function middleware(request: NextRequest) {
           request.nextUrl.origin
         ).href
       );
-    } else {
-      // HAS TOKEN
-      const now = Date.now();
-      const expiryTime = new Date(
-        session.authentication_token.expiry_time
-      ).getTime();
-      if (expiryTime < now) {
-        // BUT EXPIRES
-        session.destroy();
-        return NextResponse.redirect(
-          new URL(
-            constructUrl("/login", {
-              flash_type: "error",
-              flash_message: "Session expired. Please log in to your account",
-              next: intendedRoute,
-            }),
-            request.nextUrl.origin
-          ).href
-        );
-      }
     }
   }
 

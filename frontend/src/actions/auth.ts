@@ -27,6 +27,11 @@ export async function setSession(data: SessionData) {
   await session.save();
 }
 
+export async function revokeSession() {
+  const session = await getSession();
+  await session.destroy();
+}
+
 export async function loginAction(formData: FormData) {
   const nextUrl = formData.get("nextUrl") as string;
 
