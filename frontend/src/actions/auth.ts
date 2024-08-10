@@ -20,6 +20,7 @@ export async function getSession() {
   return session;
 }
 
+// do not use in middleware
 export async function setSession(data: SessionData) {
   const session = await getSession();
   session.authentication_token = data.authentication_token;
@@ -27,6 +28,7 @@ export async function setSession(data: SessionData) {
   await session.save();
 }
 
+// Do not use in middleware
 export async function revokeSession() {
   const session = await getSession();
   await session.destroy();
@@ -53,11 +55,15 @@ export async function loginAction(formData: FormData) {
   } catch (error) {
     let details = "Failed to submit data";
     if (isAxiosError(error)) {
-      const errorDetail = error.response?.data.error;
-      if (typeof error.response?.data.error === "object") {
-        details = "invalid authentication credentials";
+      if (error.code == "ECONNREFUSED") {
+        details = "Something unexpected happens. Please check your connection";
       } else {
-        details = errorDetail;
+        const errorDetail = error.response?.data.error;
+        if (typeof error.response?.data.error === "object") {
+          details = "Invalid authentication credentials";
+        } else {
+          details = errorDetail;
+        }
       }
     } else if (error instanceof Error) {
       details = error.message;

@@ -15,10 +15,9 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/activation", app.createActivationTokenHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthTokenHandler)
-
-	// decided to invalidate session cookie instead of revoking auth token
-	// this handler practically useless for now, but keeping it in case we need it
 	router.HandlerFunc(http.MethodDelete, "/v1/tokens/authentication", app.requireAuthenticatedUser(app.revokeAuthTokenHandler))
+
+	router.HandlerFunc(http.MethodPost, "/v1/posts", app.requireAuthenticatedUser(app.createPostHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", app.activateUserHandler)
