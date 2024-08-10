@@ -1,8 +1,7 @@
 import Header from "@/components/cms/Header";
 import Sidebar from "@/components/cms/Sidebar";
+import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
-import { SessionData } from "@/lib/session";
-import { IronSession } from "iron-session";
 import React from "react";
 
 export default function CmsLayout({
@@ -13,7 +12,7 @@ export default function CmsLayout({
   return (
     <div className="flex">
       <Sidebar />
-      <main className="w-full flex-1 overflow-hidden">
+      <main className="relative w-full flex-1">
         <Header />
         {children}
       </main>

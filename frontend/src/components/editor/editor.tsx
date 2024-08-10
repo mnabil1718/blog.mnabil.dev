@@ -108,7 +108,7 @@ export default function Editor({
                     className="flex-auto relative resize-y z-[-1]"
                   >
                     <ContentEditable
-                      className="editor-shell relative min-h-[375px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-7"
+                      className="editor-shell relative max-h-[400px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-7"
                       aria-placeholder={placeholder}
                     />
                   </div>

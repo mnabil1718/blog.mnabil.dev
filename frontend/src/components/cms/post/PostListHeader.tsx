@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PostCategorySelect } from "@/types/post";
+import Link from "next/link";
 
 const PostListHeader = ({
   postCategories,
@@ -44,9 +45,11 @@ const PostListHeader = ({
         </SelectContent>
       </Select>
 
-      <Button className="flex items-center gap-2">
-        <Plus size={16} /> New Post
-      </Button>
+      <Link href={`/panel/posts/add`}>
+        <Button className="flex items-center gap-2">
+          <Plus size={16} /> New Post
+        </Button>
+      </Link>
     </div>
   );
 };
