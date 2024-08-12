@@ -31,7 +31,7 @@ const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
 
   const form = useForm<signUpSchemaType>({
     resolver: zodResolver(signUpSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       // important so you won't get this uncontrolled error. see: https://reactjs.org/link/controlled-components
       name: "",
