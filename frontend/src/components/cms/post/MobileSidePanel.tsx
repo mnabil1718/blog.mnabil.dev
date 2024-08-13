@@ -4,16 +4,19 @@ import { DashboardNav } from "@/components/cms/DashboardNav";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { navItems } from "@/constants/data";
+import { PostSchemaType } from "@/validations/post";
 import { MenuIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import PostMetadataForm from "./PostMetadataForm";
 
 // import { Playlist } from "../data/playlists";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  // playlists: Playlist[];
+  form: UseFormReturn<PostSchemaType>;
 }
 
-export function MobileSidePanel({ className }: SidebarProps) {
+export function MobileSidePanel() {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -23,18 +26,17 @@ export function MobileSidePanel({ className }: SidebarProps) {
             <SettingsIcon size={16} />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="!px-0">
+        <SheetContent
+          side="right"
+          className="!px-0 h-screen overflow-y-auto vertical-scroll"
+        >
           <div className="space-y-4 py-4">
             <div className="px-3 py-2">
               <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-                Navigation
+                Metadata
               </h2>
               <div className="space-y-1">
-                <DashboardNav
-                  items={navItems}
-                  isMobileNav={true}
-                  setOpen={setOpen}
-                />
+                <PostMetadataForm />
               </div>
             </div>
           </div>

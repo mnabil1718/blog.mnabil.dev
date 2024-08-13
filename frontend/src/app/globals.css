@@ -73,16 +73,18 @@
     body {
       @apply bg-background text-foreground;
     }
- 
-    .toolbar-scroll::-webkit-scrollbar {
-      @apply h-1
+
+     
+    .vertical-scroll::-webkit-scrollbar {
+      @apply w-2
     }
 
-    .toolbar-scroll::-webkit-scrollbar-track {
+    .vertical-scroll::-webkit-scrollbar-track {
       @apply bg-slate-100
     }
 
-    .toolbar-scroll::-webkit-scrollbar-thumb {
+    .vertical-scroll::-webkit-scrollbar-thumb {
       @apply bg-slate-300 rounded-full hover:bg-slate-400
     }
+
   }

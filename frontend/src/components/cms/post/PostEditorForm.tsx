@@ -7,9 +7,10 @@ import {
 } from "@/components/ui/form";
 import { PostSchemaType } from "@/validations/post";
 import { EditorState, LexicalEditor } from "lexical";
-import { UseFormReturn } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-const PostEditorForm = ({ form }: { form: UseFormReturn<PostSchemaType> }) => {
+const PostEditorForm = () => {
+  const form = useFormContext<PostSchemaType>();
   return (
     <FormField
       control={form.control}
@@ -35,18 +36,6 @@ const PostEditorForm = ({ form }: { form: UseFormReturn<PostSchemaType> }) => {
                 "border border-destructive focus-visible:ring-destructive"
               }
             />
-
-            {/* <Input
-                type="text"
-                autoComplete="name"
-                placeholder="e.g. John Doe"
-                {...field}
-                className={
-                  form.formState.errors.content
-                    ? "border border-destructive focus-visible:ring-destructive"
-                    : "border border-border"
-                }
-              /> */}
           </FormControl>
           <FormMessage />
         </FormItem>

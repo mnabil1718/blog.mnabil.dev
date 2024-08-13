@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input";
 import { PostSchemaType } from "@/validations/post";
 import { Save, Send } from "lucide-react";
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { useFormContext, UseFormReturn } from "react-hook-form";
 import { MobileSidePanel } from "./MobileSidePanel";
 
-const PostFormHeader = ({ form }: { form: UseFormReturn<PostSchemaType> }) => {
+const PostFormHeader = () => {
+  const form = useFormContext<PostSchemaType>();
   return (
     <div className="relative p-5 w-full flex items-start gap-3 border-b border-border bg-background/80 saturate-100 backdrop-blur-[10px]">
       <FormField
@@ -39,10 +40,10 @@ const PostFormHeader = ({ form }: { form: UseFormReturn<PostSchemaType> }) => {
       />
 
       <Button variant={"outline"} className="flex items-center gap-2">
-        <Save size={14} /> Save
+        <Save size={14} /> <span className="hidden md:block">Save</span>
       </Button>
       <Button className="flex items-center gap-2">
-        <Send size={14} /> Publish
+        <Send size={14} /> <span className="hidden md:block">Publish</span>
       </Button>
       <div className="block xl:!hidden">
         <MobileSidePanel />
