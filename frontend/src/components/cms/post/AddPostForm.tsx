@@ -17,7 +17,7 @@ const AddPostForm = () => {
       slug: "",
       preview: "",
       content: "",
-      image_url: "",
+      image_url: undefined,
       tags: [],
     },
   });

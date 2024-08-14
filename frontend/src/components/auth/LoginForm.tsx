@@ -32,7 +32,7 @@ const LoginForm = ({
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
 
   const form = useForm<loginSchemaType>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",

@@ -1,6 +1,5 @@
 import Header from "@/components/cms/Header";
 import Sidebar from "@/components/cms/Sidebar";
-import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import React from "react";
 

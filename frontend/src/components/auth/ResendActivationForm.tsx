@@ -27,7 +27,7 @@ const ResendActivationForm = ({ csrfToken }: { csrfToken: string }) => {
   const { toast } = useToast();
 
   const form = useForm<ResendActivationSchemaType>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(resendActivationSchema),
     defaultValues: {
       // important so you won't get this uncontrolled error. see: https://reactjs.org/link/controlled-components

@@ -30,7 +30,7 @@ const ActivationForm = ({ csrfToken }: { csrfToken: string }) => {
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
 
   const form = useForm<ActivationSchemaType>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(activationSchema),
     defaultValues: {
       // important so you won't get this uncontrolled error. see: https://reactjs.org/link/controlled-components

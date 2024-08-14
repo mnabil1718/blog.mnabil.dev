@@ -1,3 +1,5 @@
+import Dropzone from "@/components/Dropzone";
+import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormField,
@@ -7,12 +9,74 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { ACCEPTED_IMAGE_MIME_TYPES, MAX_FILE_SIZE } from "@/constants/file";
+import { cn } from "@/lib/utils";
+import { slugify } from "@/utils/slug";
 import { PostSchemaType } from "@/validations/post";
-import React from "react";
+import { FileCheck2Icon, RotateCcwIcon } from "lucide-react";
+import React, { MouseEvent, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 const PostMetadataForm = () => {
   const form = useFormContext<PostSchemaType>();
+
+  const handleGenerateSlugOnClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    form.setFocus("slug");
+    form.setValue("slug", "");
+    const title = form.getValues("title") as string;
+    if (title === "" || title == undefined) {
+      form.setError(
+        "slug",
+        { type: "manual", message: "title is empty" },
+        { shouldFocus: true }
+      );
+      return;
+    }
+    form.setValue("slug", slugify(title));
+  };
+
+  function handleOnDrop(acceptedFiles: FileList | null) {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+
+      // Check file type
+      if (!ACCEPTED_IMAGE_MIME_TYPES.includes(file.type)) {
+        form.setValue("image_url", null);
+        form.setError("image_url", {
+          message: "File type is not valid",
+          type: "typeError",
+        });
+        return;
+      }
+
+      // Check file size
+      if (file.size > MAX_FILE_SIZE) {
+        form.setValue("image_url", null);
+        form.setError("image_url", {
+          message: "Max image size is 5MB.",
+          type: "typeError",
+        });
+        return;
+      }
+
+      form.setValue("image_url", file);
+      form.clearErrors("image_url");
+    } else {
+      form.setValue("image_url", null);
+      form.setError("image_url", {
+        message: "File is required",
+        type: "typeError",
+      });
+    }
+  }
+
   return (
     <>
       <FormField
@@ -22,17 +86,38 @@ const PostMetadataForm = () => {
           <FormItem>
             <FormLabel>Slug</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                autoComplete="name"
-                placeholder="e.g. next-js"
-                {...field}
-                className={
-                  form.formState.errors.slug
-                    ? "border border-destructive focus-visible:ring-destructive"
-                    : "border border-border"
-                }
-              />
+              <div className="relative">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={"ghost"}
+                        type="button"
+                        className="absolute right-0"
+                        onClick={handleGenerateSlugOnClick}
+                      >
+                        <RotateCcwIcon size={14} />{" "}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="hidden lg:block bg-foreground text-xs text-background">
+                      Generate from title
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <Input
+                  type="text"
+                  autoComplete="name"
+                  placeholder="e.g. next-js"
+                  {...field}
+                  className={cn(
+                    "pr-11",
+                    form.formState.errors.slug
+                      ? "border border-destructive focus-visible:ring-destructive"
+                      : "border border-border"
+                  )}
+                />
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -46,15 +131,16 @@ const PostMetadataForm = () => {
           <FormItem>
             <FormLabel>Thumbnail</FormLabel>
             <FormControl>
-              <Input
-                type="file"
-                autoComplete="image_url"
+              <Dropzone
                 {...field}
-                className={
-                  form.formState.errors.image_url
-                    ? "border border-destructive focus-visible:ring-destructive"
-                    : "border border-border"
+                multiple={false}
+                accept=".jpg,.jpeg,.png,.webp"
+                dropMessage={
+                  form.watch("image_url")
+                    ? form.watch("image_url")?.name
+                    : "Drop files or click here"
                 }
+                handleOnDrop={handleOnDrop}
               />
             </FormControl>
             <FormMessage />
