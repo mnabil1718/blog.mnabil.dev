@@ -66,6 +66,9 @@ const PostMetadataForm = () => {
         return;
       }
 
+      // TODO: upload image, then get image response object
+      // TODO: set image url as image_url form value
+
       form.setValue("image_url", file);
       form.clearErrors("image_url");
     } else {
