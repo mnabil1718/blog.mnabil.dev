@@ -451,7 +451,8 @@ export default function ToolbarPlugin({
 
       {/* TEXT ALIGN */}
       <Button
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left");
         }}
         className="p-2"
@@ -461,7 +462,8 @@ export default function ToolbarPlugin({
         <AlignLeft size={13} />
       </Button>
       <Button
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center");
         }}
         className="p-2"
@@ -471,7 +473,8 @@ export default function ToolbarPlugin({
         <AlignCenter size={13} />
       </Button>
       <Button
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right");
         }}
         className="p-2"
@@ -481,7 +484,8 @@ export default function ToolbarPlugin({
         <AlignRight size={13} />
       </Button>
       <Button
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify");
         }}
         className="p-2"

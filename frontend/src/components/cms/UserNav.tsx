@@ -23,8 +23,7 @@ export function UserNav({
   csrfToken: string;
 }) {
   const logoutHandler = async () => {
-    const data = { csrf_token: csrfToken };
-    const formData = objectToFormData(data);
+    const formData = objectToFormData({ csrf_token: csrfToken });
     await logoutAction(formData);
   };
   return (

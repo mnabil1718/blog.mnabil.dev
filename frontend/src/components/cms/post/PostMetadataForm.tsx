@@ -1,3 +1,5 @@
+import { uploadImageAction } from "@/actions/image";
+import { useCsrfToken } from "@/components/CsrfContext";
 import Dropzone from "@/components/Dropzone";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,13 +19,15 @@ import {
 } from "@/components/ui/tooltip";
 import { ACCEPTED_IMAGE_MIME_TYPES, MAX_FILE_SIZE } from "@/constants/file";
 import { cn } from "@/lib/utils";
+import objectToFormData from "@/utils/object-to-form-data";
 import { slugify } from "@/utils/slug";
 import { PostSchemaType } from "@/validations/post";
-import { FileCheck2Icon, RotateCcwIcon } from "lucide-react";
-import React, { MouseEvent, useState } from "react";
+import { RotateCcwIcon } from "lucide-react";
+import React, { MouseEvent } from "react";
 import { useFormContext } from "react-hook-form";
 
 const PostMetadataForm = () => {
+  const csrfToken = useCsrfToken();
   const form = useFormContext<PostSchemaType>();
 
   const handleGenerateSlugOnClick = (e: MouseEvent<HTMLButtonElement>) => {
@@ -42,7 +46,7 @@ const PostMetadataForm = () => {
     form.setValue("slug", slugify(title));
   };
 
-  function handleOnDrop(acceptedFiles: FileList | null) {
+  async function handleOnDrop(acceptedFiles: FileList | null) {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
 
@@ -67,6 +71,18 @@ const PostMetadataForm = () => {
       }
 
       // TODO: upload image, then get image response object
+      const formData = objectToFormData({
+        file: file,
+        csrf_token: csrfToken,
+      });
+      const response = await uploadImageAction(formData);
+      console.log(response);
+      // if (response?.error) {
+      //   console.log(response?.error);
+      // } else {
+      //   console.log(response.data);
+      // }
+
       // TODO: set image url as image_url form value
 
       form.setValue("image_url", file);
