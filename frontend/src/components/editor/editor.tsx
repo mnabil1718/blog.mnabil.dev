@@ -70,8 +70,8 @@ const ContentEditableWrapper = ({
   onRef: (_floatingAnchorElem: HTMLDivElement) => void;
 }) => {
   return (
-    <div className="min-h-[425px] border-none flex relative outline-none z-0 overflow-auto resize-y">
-      <div ref={onRef} className="flex-auto relative resize-y z-[-1]">
+    <div className="min-h-[450px] border-none flex relative outline-none z-0 overflow-auto">
+      <div ref={onRef} className="flex-auto relative z-[-1]">
         <ContentEditable
           className="editor-shell relative max-h-[400px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-7"
           aria-placeholder={placeholder}
@@ -124,7 +124,7 @@ const Editor = React.forwardRef((props: EditorProps, ref: any) => {
     <LexicalComposer initialConfig={editorConfig}>
       <div
         className={cn(
-          "relative min-h-[375px] rounded-md border border-border",
+          "relative h-full rounded-md border border-border",
           props.className
         )}
       >

@@ -11,7 +11,7 @@ import PostMetadataForm from "./PostMetadataForm";
 const AddPostForm = () => {
   const form = useForm<PostSchemaType>({
     resolver: zodResolver(postSchema),
-    mode: "onBlur",
+    mode: "onSubmit",
     defaultValues: {
       title: "",
       slug: "",
@@ -33,8 +33,8 @@ const AddPostForm = () => {
           className="min-h-[calc(100vh-64px)] flex flex-col"
         >
           <PostFormHeader />
-          <div className="relative flex-1 xl:flex">
-            <div className="relative mx-auto max-w-screen-sm p-5">
+          <div className="relative flex-1 xl:flex bg-slate-100">
+            <div className="mx-auto max-w-screen-sm p-3">
               <PostEditorForm />
             </div>
             <div className="hidden xl:block w-[420px] p-5 h-auto flex-none border-l border-border bg-background space-y-3">

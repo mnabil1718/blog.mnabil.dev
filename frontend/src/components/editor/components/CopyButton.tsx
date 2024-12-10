@@ -25,7 +25,8 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
     setCopyCompleted(false);
   }, 1000);
 
-  async function handleClick(): Promise<void> {
+  async function handleClick(e: any): Promise<void> {
+    e.preventDefault();
     const codeDOMNode = getCodeDOMNode();
 
     if (!codeDOMNode) {

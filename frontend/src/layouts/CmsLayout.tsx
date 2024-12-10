@@ -11,7 +11,7 @@ export default function CmsLayout({
   return (
     <div className="flex">
       <Sidebar />
-      <main className="relative w-full flex-1">
+      <main className="relative w-full">
         <Header />
         {children}
       </main>
