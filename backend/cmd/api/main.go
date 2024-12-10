@@ -42,6 +42,9 @@ type config struct {
 	cors struct {
 		trustedOrigins []string
 	}
+	upload struct {
+		path string
+	}
 }
 
 type application struct {
@@ -76,6 +79,8 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "ec3025ad72b125", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "373c5780d64d98", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "blog.mnabil.dev <no-reply@blog.mnabil.dev>", "SMTP sender")
+
+	flag.StringVar(&cfg.upload.path, "upload-path", "./images", "Local upload path")
 
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated) e.g. http://localhost:3000", func(val string) error {
 		cfg.cors.trustedOrigins = strings.Fields(val)

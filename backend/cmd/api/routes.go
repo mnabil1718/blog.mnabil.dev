@@ -17,6 +17,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthTokenHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/tokens/authentication", app.requireAuthenticatedUser(app.revokeAuthTokenHandler))
 
+	router.HandlerFunc(http.MethodPost, "/v1/images", app.requireAuthenticatedUser(app.uploadImagesHandler))
+
 	router.HandlerFunc(http.MethodPost, "/v1/posts", app.requireAuthenticatedUser(app.createPostHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
