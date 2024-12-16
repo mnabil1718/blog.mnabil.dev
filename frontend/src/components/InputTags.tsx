@@ -190,7 +190,9 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
             ) : (
               suggestions.map((suggestion, index) => (
                 <div
-                  ref={(el) => (suggestionRefs.current[index] = el)}
+                  ref={(el) => {
+                    suggestionRefs.current[index] = el;
+                  }}
                   tabIndex={0}
                   key={suggestion}
                   className={cn(
