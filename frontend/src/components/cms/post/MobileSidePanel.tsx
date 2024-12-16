@@ -28,7 +28,7 @@ export function MobileSidePanel() {
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="!px-0 h-screen overflow-y-auto vertical-scroll"
+          className="!px-2 h-screen overflow-y-auto vertical-scroll"
         >
           <div className="space-y-4 py-4">
             <div className="px-3 py-2">

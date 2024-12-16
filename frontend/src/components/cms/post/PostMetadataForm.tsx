@@ -1,6 +1,7 @@
 import { uploadImageAction } from "@/actions/image";
 import { useCsrfToken } from "@/components/CsrfContext";
 import Dropzone from "@/components/Dropzone";
+import { InputTags } from "@/components/InputTags";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -25,6 +26,11 @@ import { PostSchemaType } from "@/validations/post";
 import { RotateCcwIcon } from "lucide-react";
 import React, { MouseEvent } from "react";
 import { useFormContext } from "react-hook-form";
+import { dummyTags } from "@/data/tags";
+
+async function fetchTags(query: string): Promise<string[]> {
+  return dummyTags.filter((tag) => tag.includes(query));
+}
 
 const PostMetadataForm = () => {
   const csrfToken = useCsrfToken();
@@ -43,6 +49,7 @@ const PostMetadataForm = () => {
       );
       return;
     }
+    form.clearErrors("slug");
     form.setValue("slug", slugify(title));
   };
 
@@ -127,7 +134,7 @@ const PostMetadataForm = () => {
                 <Input
                   type="text"
                   autoComplete="name"
-                  placeholder="e.g. next-js"
+                  placeholder="e.g. my-post-title"
                   {...field}
                   className={cn(
                     "pr-11",
@@ -174,7 +181,7 @@ const PostMetadataForm = () => {
           <FormItem>
             <FormLabel>Tags</FormLabel>
             <FormControl>
-              <Input
+              {/* <Input
                 type="text"
                 autoComplete="tags"
                 placeholder="e.g. next-js; tailwindcss"
@@ -184,6 +191,11 @@ const PostMetadataForm = () => {
                     ? "border border-destructive focus-visible:ring-destructive"
                     : "border border-border"
                 }
+              /> */}
+              <InputTags
+                fetchTags={fetchTags}
+                value={field.value}
+                onChange={(newTags) => field.onChange(newTags)}
               />
             </FormControl>
             <FormMessage />

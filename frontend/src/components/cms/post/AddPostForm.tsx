@@ -38,7 +38,7 @@ const AddPostForm = () => {
               <PostEditorForm />
             </div>
             <div className="hidden xl:block w-[420px] p-5 h-auto flex-none border-l border-border bg-background space-y-3">
-              <div>
+              <div className="space-y-4">
                 <PostMetadataForm />
               </div>
             </div>
