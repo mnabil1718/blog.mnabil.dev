@@ -73,7 +73,7 @@ func (app *application) registerUserHandler(writer http.ResponseWriter, request 
 	app.background(func() {
 		err = app.mailer.Send(user.Email, "user_welcome.tmpl", map[string]interface{}{
 			"activationToken": token.Plaintext,
-			"activationLink":  app.config.frontendUrl + "/activation",
+			"activationLink":  app.config.FrontendURL + "/activation",
 		})
 		if err != nil {
 			app.logger.PrintError(err, nil)

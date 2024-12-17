@@ -61,13 +61,13 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if app.config.limiter.enabled {
+		if app.config.Limiter.Enabled {
 			ip := realip.FromRequest(r)
 
 			mutex.Lock() // guarding this entire checking process, 1 goroutine at a time
 
 			if _, ok := clients[ip]; !ok {
-				clients[ip] = &Client{limiter: rate.NewLimiter(rate.Limit(app.config.limiter.rps), app.config.limiter.burst)}
+				clients[ip] = &Client{limiter: rate.NewLimiter(rate.Limit(app.config.Limiter.RPS), app.config.Limiter.Burst)}
 			}
 
 			clients[ip].lastSeenTime = time.Now()
@@ -178,8 +178,8 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 		w.Header().Add("Vary", "Access-Control-Request-Method")
 		origin := r.Header.Get("Origin")
 
-		if origin != "" && len(app.config.cors.trustedOrigins) > 0 {
-			for _, trustedOrigin := range app.config.cors.trustedOrigins {
+		if origin != "" && len(app.config.CORS.TrustedOrigins) > 0 {
+			for _, trustedOrigin := range app.config.CORS.TrustedOrigins {
 				if origin == trustedOrigin { // make sure it matches trustedOrigin exactly, no partial matches
 					w.Header().Set("Access-Control-Allow-Origin", trustedOrigin)
 					w.Header().Set("Access-Control-Allow-Credentials", "true")

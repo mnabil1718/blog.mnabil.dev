@@ -10,7 +10,7 @@ func (app *application) healthcheckHandler(writer http.ResponseWriter, request *
 	env := envelope{
 		"status": "available",
 		"system_info": map[string]string{
-			"environment": app.config.env,
+			"environment": app.config.Env,
 			"version":     version,
 		},
 	}

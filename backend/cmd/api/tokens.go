@@ -168,7 +168,7 @@ func (app *application) createActivationTokenHandler(w http.ResponseWriter, r *h
 	app.background(func() {
 		data := map[string]interface{}{
 			"activationToken": token.Plaintext,
-			"activationLink":  app.config.frontendUrl + "/activation",
+			"activationLink":  app.config.FrontendURL + "/activation",
 		}
 		// Since email addresses MAY be case sensitive, notice that we are sending this
 		// email using the address stored in our database for the user --- not to the

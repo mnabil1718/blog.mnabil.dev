@@ -17,18 +17,19 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/julienschmidt/httprouter"
+	"github.com/mnabil1718/blog.mnabil.dev/internal/config"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
-func openDB(cfg config) (*sql.DB, error) {
-	db, err := sql.Open("pgx", cfg.db.dsn)
+func openDB(cfg config.Config) (*sql.DB, error) {
+	db, err := sql.Open("pgx", cfg.DB.DSN)
 	if err != nil {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(cfg.db.maxOpenConns)
-	db.SetMaxIdleConns(cfg.db.maxIdleConns)
-	duration, err := time.ParseDuration(cfg.db.maxIdleTime) // "15m" or "5s"
+	db.SetMaxOpenConns(cfg.DB.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.DB.MaxIdleConns)
+	duration, err := time.ParseDuration(cfg.DB.MaxIdleTime) // "15m" or "5s"
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +180,7 @@ func (app *application) background(fn func()) {
 
 func (app *application) getSecureCookieFlag() bool {
 	secureFlag := false
-	if app.config.env == "prod" {
+	if app.config.Env == "prod" {
 		secureFlag = true
 	}
 	return secureFlag

@@ -14,7 +14,7 @@ import (
 
 func (app *application) serve() error {
 	server := http.Server{
-		Addr:         fmt.Sprintf("%s:%d", app.config.host, app.config.port),
+		Addr:         fmt.Sprintf("%s:%d", app.config.Host, app.config.Port),
 		Handler:      app.routes(),
 		ErrorLog:     log.New(app.logger, "", 0),
 		IdleTimeout:  time.Minute,
@@ -53,9 +53,9 @@ func (app *application) serve() error {
 		shutDownErr <- nil
 	}()
 
-	app.logger.PrintInfo(fmt.Sprintf("starting %s server on %s", app.config.env, server.Addr), map[string]string{
+	app.logger.PrintInfo(fmt.Sprintf("starting %s server on %s", app.config.Env, server.Addr), map[string]string{
 		"addr": server.Addr,
-		"env":  app.config.env,
+		"env":  app.config.Env,
 	})
 
 	err := server.ListenAndServe()

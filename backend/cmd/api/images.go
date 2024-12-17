@@ -83,7 +83,6 @@ func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	fileSize := fileHeader.Size
-	// TODO: fix filename generation to exclude extension
 	filename := generateFileName(fileHeader.Filename)
 	destination := filename + extension
 
@@ -103,13 +102,13 @@ func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = os.MkdirAll(app.config.upload.path, 0755) // Set directory permissions to 0755
+	err = os.MkdirAll(app.config.Upload.Path, 0755) // Set directory permissions to 0755
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	filePath := filepath.Join(app.config.upload.path, destination)
+	filePath := filepath.Join(app.config.Upload.Path, destination)
 	f, err := os.Create(filePath)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
