@@ -22,8 +22,8 @@ export async function uploadImageAction(formData: FormData) {
     return res.data;
   } catch (error) {
     if (isAxiosError(error)) {
-      const errorDetail = error.response?.data.error;
-      errorDetails = errorDetail;
+      errorDetails =
+        error.response?.data.error ?? "Upload failed. Something went wrong";
     } else if (error instanceof Error) {
       errorDetails = error.message;
     }

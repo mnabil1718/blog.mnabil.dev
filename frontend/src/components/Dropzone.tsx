@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import React, { ChangeEvent, useRef } from "react";
+import { Loader2 } from "lucide-react";
+import React, { ChangeEvent, useRef, useState, useEffect } from "react";
 
 interface DropzoneProps
   extends Omit<
@@ -13,7 +14,7 @@ interface DropzoneProps
   dropMessage: string;
   accept: string;
   multiple: boolean;
-  handleOnDrop: (acceptedFiles: FileList | null) => void;
+  handleOnDrop: (acceptedFiles: FileList | null) => void | Promise<void>;
 }
 
 const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
@@ -30,35 +31,52 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
     ref
   ) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
-    // Function to handle drag over event
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleOnDrop(null);
-    };
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // Function to handle drop event
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const { files } = e.dataTransfer;
-      if (inputRef.current) {
-        inputRef.current.files = files;
-        handleOnDrop(files);
+    // Function to handle drop and manage loading state
+    const handleAction = async (files: FileList | null) => {
+      setIsLoading(true);
+      try {
+        await Promise.resolve(handleOnDrop(files));
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    // Function to simulate a click on the file input element
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const { files } = e.dataTransfer;
+      if (inputRef.current) {
+        inputRef.current.files = files;
+        await handleAction(files);
+      }
+    };
+
+    const handleFileInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files) {
+        await handleAction(files);
+      }
+    };
+
     const handleButtonClick = () => {
       if (inputRef.current) {
         inputRef.current.click();
       }
     };
+
     return (
       <Card
         ref={ref}
         className={cn(
-          `flex items-center justify-center border-2 border-dashed bg-slate-50 hover:cursor-pointer hover:border-muted-foreground/50`,
+          `relative flex items-center justify-center border-2 border-dashed bg-slate-50 hover:cursor-pointer hover:border-muted-foreground/50`,
           classNameWrapper
         )}
       >
@@ -68,6 +86,13 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
           onDrop={handleDrop}
           onClick={handleButtonClick}
         >
+          {/* LOADING SPINNER */}
+          {isLoading && (
+            <div className="absolute bottom-1 right-1 animate-spin">
+              <Loader2 width={16} height={16} className="text-slate-400" />
+            </div>
+          )}
+
           <div className="flex items-center justify-center text-muted-foreground">
             <span className="font-medium">{dropMessage}</span>
             <Input
@@ -78,9 +103,7 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
               multiple={multiple}
               accept={accept}
               className={cn("hidden", className)}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleOnDrop(e.target.files)
-              }
+              onChange={handleFileInputChange}
             />
           </div>
         </CardContent>

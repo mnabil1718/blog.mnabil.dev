@@ -21,9 +21,9 @@ import {
   ActivationSchemaType,
 } from "@/validations/activation";
 import objectToFormData from "@/utils/object-to-form-data";
-import { AuthActionResponse } from "@/actions/auth-types";
 import { activationAction } from "@/actions/auth";
 import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
+import { ActionResponse } from "@/types/action-response";
 
 const ActivationForm = ({ csrfToken }: { csrfToken: string }) => {
   const { toast } = useToast();
@@ -43,7 +43,7 @@ const ActivationForm = ({ csrfToken }: { csrfToken: string }) => {
       ...data,
       csrf_token: csrfToken,
     });
-    const response: AuthActionResponse = await activationAction(formData);
+    const response: ActionResponse = await activationAction(formData);
     if (response?.error && typeof response?.error === "string") {
       showErrorToast(toast, response.error);
     } else if (response?.error && typeof response?.error === "object") {

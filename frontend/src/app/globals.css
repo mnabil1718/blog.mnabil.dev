@@ -87,7 +87,7 @@
   }
 
   .soft-scroll::-webkit-scrollbar {
-    @apply w-2 h-2;
+    @apply w-1.5 h-1.5;
   }
 
   .soft-scroll::-webkit-scrollbar-track {

@@ -27,6 +27,9 @@ import { RotateCcwIcon } from "lucide-react";
 import React, { MouseEvent } from "react";
 import { useFormContext } from "react-hook-form";
 import { dummyTags } from "@/data/tags";
+import { showErrorToast } from "@/utils/show-toasts";
+import { useToast } from "@/components/ui/use-toast";
+import { ActionResponse } from "@/types/action-response";
 
 async function fetchTags(query: string): Promise<string[]> {
   return dummyTags.filter((tag) => tag.includes(query));
@@ -35,6 +38,7 @@ async function fetchTags(query: string): Promise<string[]> {
 const PostMetadataForm = () => {
   const csrfToken = useCsrfToken();
   const form = useFormContext<PostSchemaType>();
+  const { toast } = useToast();
 
   const handleGenerateSlugOnClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -77,20 +81,26 @@ const PostMetadataForm = () => {
         return;
       }
 
-      // TODO: upload image, then get image response object
       const formData = objectToFormData({
         file: file,
         csrf_token: csrfToken,
       });
-      const response = await uploadImageAction(formData);
-      console.log(response);
-      // if (response?.error) {
-      //   console.log(response?.error);
-      // } else {
-      //   console.log(response.data);
-      // }
+      const response: ActionResponse = await uploadImageAction(formData);
+      if (response?.error) {
+        if (typeof response?.error === "string") {
+          showErrorToast(toast, response.error);
+        }
 
-      // TODO: set image url as image_url form value
+        if (typeof response?.error === "object") {
+          for (const [key, message] of Object.entries(response.error)) {
+            form.setError("image_url", {
+              type: "manual",
+              message,
+            });
+          }
+        }
+        return;
+      }
 
       form.setValue("image_url", file);
       form.clearErrors("image_url");
