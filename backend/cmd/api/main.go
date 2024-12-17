@@ -56,12 +56,17 @@ func main() {
 
 	logger.PrintInfo("database connection pool established successfully.", nil)
 
+	storage, err := storage.New(cfg.Upload.Path, cfg.Upload.TempPath)
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
+
 	app := application{
 		logger:  logger,
 		config:  cfg,
 		models:  data.NewModels(db),
 		mailer:  mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender),
-		storage: *storage.New(cfg.Upload.Path, cfg.Upload.TempPath),
+		storage: *storage,
 	}
 
 	err = app.serve()

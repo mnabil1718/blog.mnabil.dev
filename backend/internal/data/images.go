@@ -23,6 +23,7 @@ type Image struct {
 	Width       int32     `json:"width,omitempty"`
 	Height      int32     `json:"height,omitempty"`
 	ContentType string    `json:"content_type"`
+	IsTemp      bool      `json:"-"`
 	UpdatedAt   time.Time `json:"-"`
 	CreatedAt   time.Time `json:"-"`
 	Version     int32     `json:"-"`

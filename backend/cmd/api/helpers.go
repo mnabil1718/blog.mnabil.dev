@@ -9,12 +9,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/julienschmidt/httprouter"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/config"
@@ -184,22 +182,4 @@ func (app *application) getSecureCookieFlag() bool {
 		secureFlag = true
 	}
 	return secureFlag
-}
-
-func slugify(text string) string {
-	text = strings.ToLower(text)
-	text = strings.ReplaceAll(text, " ", "-")
-	text = strings.ReplaceAll(text, "_", "-")
-	reg := regexp.MustCompile("[^a-z0-9-]+")
-	text = reg.ReplaceAllString(text, "")
-	return text
-}
-
-func generateFileName(fileName string) string {
-	id := uuid.New().String()
-
-	fileName = strings.Split(fileName, ".")[0]
-	slugifiedName := slugify(fileName)
-	timestamp := time.Now().Format("20060102_150405")
-	return fmt.Sprintf("%s-%s-%s", slugifiedName, id, timestamp)
 }
