@@ -9,6 +9,7 @@ import (
 	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/jsonlog"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/mailer"
+	"github.com/mnabil1718/blog.mnabil.dev/internal/storage"
 	"github.com/spf13/viper"
 )
 
@@ -17,11 +18,12 @@ var (
 )
 
 type application struct {
-	logger *jsonlog.Logger
-	config config.Config
-	models data.Models
-	wg     sync.WaitGroup
-	mailer mailer.Mailer
+	logger  *jsonlog.Logger
+	config  config.Config
+	models  data.Models
+	wg      sync.WaitGroup
+	mailer  mailer.Mailer
+	storage storage.ImageStorage
 }
 
 func main() {
@@ -55,10 +57,11 @@ func main() {
 	logger.PrintInfo("database connection pool established successfully.", nil)
 
 	app := application{
-		logger: logger,
-		config: cfg,
-		models: data.NewModels(db),
-		mailer: mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender),
+		logger:  logger,
+		config:  cfg,
+		models:  data.NewModels(db),
+		mailer:  mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender),
+		storage: *storage.New(cfg.Upload.Path, cfg.Upload.TempPath),
 	}
 
 	err = app.serve()
