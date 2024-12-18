@@ -64,11 +64,20 @@ func New(path, tempPath string) (*ImageStorage, error) {
 	return &ImageStorage{path, tempPath}, nil
 }
 
-func (s *ImageStorage) GetFullPath(destination string) string {
-	return s.path + "/" + destination
-}
-func (s *ImageStorage) GetFullTempPath(destination string) string {
-	return s.tempPath + "/" + destination
+func (s *ImageStorage) GetFullPath(image *data.Image) (string, error) {
+	var basePath string
+
+	if image.IsTemp {
+		basePath = s.tempPath
+	} else {
+		basePath = s.path
+	}
+
+	if basePath == "" || image.Destination == "" {
+		return "", errors.New("invalid path or destination")
+	}
+
+	return filepath.Join(basePath, image.Destination), nil
 }
 
 func (s *ImageStorage) SaveTemp(file multipart.File, fileHeader multipart.FileHeader, path string, v *validator.Validator) (*data.Image, error) {

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mnabil1718/blog.mnabil.dev/internal/utils"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
@@ -64,4 +65,33 @@ func (model ImageModel) Insert(image *Image) error {
 	}
 
 	return nil
+}
+
+func (model ImageModel) GetByFilename(filename string) (*Image, error) {
+	err := utils.ValidateImageFilename(filename)
+	if err != nil {
+		return nil, ErrRecordNotFound
+	}
+
+	SQL := `SELECT id, file_name, alt, destination, size, width, height, content_type, created_at, updated_at, version, is_temp
+			FROM images WHERE
+			file_name=$1`
+
+	image := &Image{}
+
+	args := []interface{}{filename}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err = model.DB.QueryRowContext(ctx, SQL, args...).Scan(&image.ID, &image.FileName, &image.Alt, &image.Destination, &image.Size, &image.Width, &image.Height, &image.ContentType, &image.CreatedAt, &image.UpdatedAt, &image.Version, &image.IsTemp)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+
+		default:
+			return nil, err
+		}
+	}
+
+	return image, nil
 }

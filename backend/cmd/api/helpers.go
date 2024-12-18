@@ -16,6 +16,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/julienschmidt/httprouter"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/config"
+	"github.com/mnabil1718/blog.mnabil.dev/internal/utils"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
@@ -51,6 +52,18 @@ func (app *application) getIdFromRequestContext(request *http.Request) (int64, e
 	}
 
 	return id, nil
+}
+
+func (app *application) getFilenameFromRequestContext(request *http.Request) (string, error) {
+	params := httprouter.ParamsFromContext(request.Context())
+	filename := params.ByName("filename")
+
+	err := utils.ValidateImageFilename(filename)
+	if err != nil {
+		return "", err
+	}
+
+	return filename, nil
 }
 
 type envelope map[string]interface{}
@@ -182,4 +195,8 @@ func (app *application) getSecureCookieFlag() bool {
 		secureFlag = true
 	}
 	return secureFlag
+}
+
+func (application *application) generateImageURL(fileName string) string {
+	return fmt.Sprintf("http://%s:%d/v1/images/%s", application.config.Host, application.config.Port, fileName)
 }
