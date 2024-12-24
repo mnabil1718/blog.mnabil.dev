@@ -24,8 +24,10 @@ import objectToFormData from "@/utils/object-to-form-data";
 import { activationAction } from "@/actions/auth";
 import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
 import { ActionResponse } from "@/types/action-response";
+import { useCsrfToken } from "../CsrfContext";
 
-const ActivationForm = ({ csrfToken }: { csrfToken: string }) => {
+const ActivationForm = () => {
+  const csrfToken = useCsrfToken();
   const { toast } = useToast();
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
 
@@ -72,17 +74,6 @@ const ActivationForm = ({ csrfToken }: { csrfToken: string }) => {
               <FormLabel>Token</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Button
-                    variant={"ghost"}
-                    type="button"
-                    className="absolute right-0"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setpasswordVisible(!passwordVisible);
-                    }}
-                  >
-                    {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </Button>
                   <Input
                     type={passwordVisible ? "text" : "password"}
                     placeholder="Enter Token"
@@ -95,6 +86,17 @@ const ActivationForm = ({ csrfToken }: { csrfToken: string }) => {
                         : "border border-border"
                     )}
                   />
+                  <Button
+                    variant={"ghost"}
+                    type="button"
+                    className="absolute right-0 top-0"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setpasswordVisible(!passwordVisible);
+                    }}
+                  >
+                    {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
                 </div>
               </FormControl>
               <FormMessage />

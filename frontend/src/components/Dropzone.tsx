@@ -2,7 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import React, { ChangeEvent, useRef, useState, useEffect } from "react";
+import Image from "next/image";
+import React, { ChangeEvent, useRef, useState } from "react";
 
 interface DropzoneProps
   extends Omit<
@@ -13,7 +14,7 @@ interface DropzoneProps
   className?: string;
   dropMessage: string;
   accept: string;
-  multiple: boolean;
+  previewURL: string;
   handleOnDrop: (acceptedFiles: FileList | null) => void | Promise<void>;
 }
 
@@ -24,7 +25,7 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
       classNameWrapper,
       dropMessage,
       accept,
-      multiple,
+      previewURL,
       handleOnDrop,
       ...props
     },
@@ -76,12 +77,12 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
       <Card
         ref={ref}
         className={cn(
-          `relative flex items-center justify-center border-2 border-dashed bg-slate-50 hover:cursor-pointer hover:border-muted-foreground/50`,
+          `flex items-center justify-center border-2 border-dashed bg-slate-50 hover:cursor-pointer hover:border-muted-foreground/50 overflow-hidden`,
           classNameWrapper
         )}
       >
         <CardContent
-          className="flex items-center justify-center px-2 py-4 text-xs"
+          className="flex w-full h-full items-center justify-center p-0 text-xs"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           onClick={handleButtonClick}
@@ -94,18 +95,36 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
           )}
 
           <div className="flex items-center justify-center text-muted-foreground">
-            <span className="font-medium">{dropMessage}</span>
+            <span className="font-medium hover:underline">
+              {previewURL !== "" ? "" : dropMessage}
+            </span>
             <Input
               {...props}
               value={undefined}
               ref={inputRef}
               type="file"
-              multiple={multiple}
+              multiple={false}
               accept={accept}
               className={cn("hidden", className)}
               onChange={handleFileInputChange}
             />
           </div>
+
+          {previewURL !== "" && (
+            <div className="relative w-full h-full justify-center group">
+              <Image
+                src={previewURL}
+                alt="Thumbnail Preview"
+                fill
+                className="object-contain"
+              />
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
+                <span className="text-white font-medium px-2 py-1 border border-white rounded-full">
+                  Change
+                </span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     );

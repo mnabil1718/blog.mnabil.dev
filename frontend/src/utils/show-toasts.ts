@@ -12,3 +12,9 @@ export const showSuccessToast = (toast: any, description: string) => {
     description: description,
   });
 };
+
+export const showDefaultToastNoTitle = (toast: any, description: string) => {
+  toast({
+    description: description,
+  });
+};

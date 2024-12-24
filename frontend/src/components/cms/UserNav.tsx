@@ -11,9 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
-import { SessionData, SessionUser } from "@/lib/session";
+import { SessionUser } from "@/lib/session";
 import objectToFormData from "@/utils/object-to-form-data";
 import { logoutAction } from "@/actions/auth";
+import { showErrorToast } from "@/utils/show-toasts";
+import { useToast } from "../ui/use-toast";
 
 export function UserNav({
   sessionUser,
@@ -22,9 +24,13 @@ export function UserNav({
   sessionUser: SessionUser;
   csrfToken: string;
 }) {
+  const { toast } = useToast();
   const logoutHandler = async () => {
     const formData = objectToFormData({ csrf_token: csrfToken });
-    await logoutAction(formData);
+    const res = await logoutAction(formData);
+    if (res?.error) {
+      showErrorToast(toast, res.error);
+    }
   };
   return (
     <DropdownMenu>

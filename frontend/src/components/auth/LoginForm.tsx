@@ -20,14 +20,10 @@ import { loginSchema, loginSchemaType } from "@/validations/login";
 import { loginAction } from "@/actions/auth";
 import objectToFormData from "@/utils/object-to-form-data";
 import { showErrorToast } from "@/utils/show-toasts";
+import { useCsrfToken } from "../CsrfContext";
 
-const LoginForm = ({
-  csrfToken,
-  nextUrl,
-}: {
-  csrfToken: string;
-  nextUrl: string;
-}) => {
+const LoginForm = ({ nextUrl }: { nextUrl: string }) => {
+  const csrfToken = useCsrfToken();
   const { toast } = useToast();
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
 
@@ -90,17 +86,6 @@ const LoginForm = ({
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Button
-                    variant={"ghost"}
-                    type="button"
-                    className="absolute right-0"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setpasswordVisible(!passwordVisible);
-                    }}
-                  >
-                    {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </Button>
                   <Input
                     type={passwordVisible ? "text" : "password"}
                     placeholder="Enter Password"
@@ -113,6 +98,17 @@ const LoginForm = ({
                         : "border border-border"
                     )}
                   />
+                  <Button
+                    variant={"ghost"}
+                    type="button"
+                    className="absolute right-0 top-0"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setpasswordVisible(!passwordVisible);
+                    }}
+                  >
+                    {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
                 </div>
               </FormControl>
               <FormMessage />

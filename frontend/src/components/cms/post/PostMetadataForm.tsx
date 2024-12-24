@@ -30,6 +30,7 @@ import { dummyTags } from "@/data/tags";
 import { showErrorToast } from "@/utils/show-toasts";
 import { useToast } from "@/components/ui/use-toast";
 import { ActionResponse } from "@/types/action-response";
+import { Separator } from "@/components/ui/separator";
 
 async function fetchTags(query: string): Promise<string[]> {
   return dummyTags.filter((tag) => tag.includes(query));
@@ -58,28 +59,8 @@ const PostMetadataForm = () => {
   };
 
   async function handleOnDrop(acceptedFiles: FileList | null) {
-    if (acceptedFiles && acceptedFiles.length > 0) {
+    if (acceptedFiles && acceptedFiles[0]) {
       const file = acceptedFiles[0];
-
-      // Check file type
-      if (!ACCEPTED_IMAGE_MIME_TYPES.includes(file.type)) {
-        form.setValue("image_url", null);
-        form.setError("image_url", {
-          message: "File type is not valid",
-          type: "typeError",
-        });
-        return;
-      }
-
-      // Check file size
-      if (file.size > MAX_FILE_SIZE) {
-        form.setValue("image_url", null);
-        form.setError("image_url", {
-          message: "Max image size is 5MB.",
-          type: "typeError",
-        });
-        return;
-      }
 
       const formData = objectToFormData({
         file: file,
@@ -87,13 +68,16 @@ const PostMetadataForm = () => {
       });
       const response: ActionResponse = await uploadImageAction(formData);
       if (response?.error) {
+        form.setValue("image.image_url", "");
+        form.setValue("image.image_name", "");
+
         if (typeof response?.error === "string") {
           showErrorToast(toast, response.error);
         }
 
         if (typeof response?.error === "object") {
           for (const [key, message] of Object.entries(response.error)) {
-            form.setError("image_url", {
+            form.setError("image.image_name", {
               type: "manual",
               message,
             });
@@ -102,19 +86,62 @@ const PostMetadataForm = () => {
         return;
       }
 
-      form.setValue("image_url", file);
-      form.clearErrors("image_url");
-    } else {
-      form.setValue("image_url", null);
-      form.setError("image_url", {
-        message: "File is required",
-        type: "typeError",
+      form.setValue("image.image_name", response.image.name, {
+        shouldValidate: true,
       });
+      form.setValue("image.image_url", response.image.url, {
+        shouldValidate: true,
+      });
+
+      const isNameValid = await form.trigger("image.image_name");
+
+      if (isNameValid) {
+        form.clearErrors("image.image_name");
+      }
+    } else {
+      form.setValue("image.image_url", "");
+      form.setValue("image.image_name", "", { shouldValidate: true });
     }
   }
 
   return (
     <>
+      <FormField
+        control={form.control}
+        name="image.image_name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Thumbnail</FormLabel>
+            <FormControl>
+              <>
+                <Dropzone
+                  {...field}
+                  accept=".jpg,.jpeg,.png,.webp"
+                  dropMessage="Drop file or click here"
+                  handleOnDrop={handleOnDrop}
+                  previewURL={form.watch("image.image_url")}
+                  classNameWrapper="relative h-32"
+                />
+              </>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="image.image_alt"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Input placeholder="Enter thumbnail alt text" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       <FormField
         control={form.control}
         name="slug"
@@ -162,46 +189,11 @@ const PostMetadataForm = () => {
 
       <FormField
         control={form.control}
-        name="image_url"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Thumbnail</FormLabel>
-            <FormControl>
-              <Dropzone
-                {...field}
-                multiple={false}
-                accept=".jpg,.jpeg,.png,.webp"
-                dropMessage={
-                  form.watch("image_url")
-                    ? form.watch("image_url")?.name
-                    : "Drop files or click here"
-                }
-                handleOnDrop={handleOnDrop}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
         name="tags"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Tags</FormLabel>
             <FormControl>
-              {/* <Input
-                type="text"
-                autoComplete="tags"
-                placeholder="e.g. next-js; tailwindcss"
-                {...field}
-                className={
-                  form.formState.errors.tags
-                    ? "border border-destructive focus-visible:ring-destructive"
-                    : "border border-border"
-                }
-              /> */}
               <InputTags
                 fetchTags={fetchTags}
                 value={field.value}

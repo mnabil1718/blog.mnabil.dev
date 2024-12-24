@@ -1,13 +1,12 @@
 "use server";
 
 import { DefaultSession, SessionData, sessionOptions } from "@/lib/session";
-import { constructUrl } from "@/utils/construct-url";
-import { encodeQueryParams } from "@/utils/encode-query-params";
 import axios, { isAxiosError } from "axios";
 import { getIronSession, IronSession } from "iron-session";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { setFlashMessage } from "./flash";
 
 export async function getSession() {
   const session = await getIronSession<SessionData>(cookies(), sessionOptions);
@@ -75,7 +74,10 @@ export async function loginAction(formData: FormData) {
   }
 
   revalidatePath("/login");
-  redirect(nextUrl); // for some bloody reason, cannot be used in a try catch block
+
+  // Redirect have internal error handling and should be called after try-catch block
+  // more info: https://nextjs.org/docs/14/app/api-reference/functions/redirect
+  redirect(nextUrl);
 }
 
 // do not delete formData since it is used by csrf_token middleware
@@ -93,20 +95,24 @@ export async function logoutAction(formData: FormData) {
     );
     session.destroy();
   } catch (error) {
+    let details = "Failed to submit data";
     if (isAxiosError(error)) {
-      const errorDetail = error.response?.data.error;
-      errorDetails = errorDetail;
+      if (error.code == "ECONNREFUSED") {
+        details = "Something unexpected happens. Please check your connection";
+      } else {
+        details = error.response?.data.error;
+      }
     } else if (error instanceof Error) {
-      errorDetails = error.message;
+      details = error.message;
     }
+
+    return {
+      error: details,
+    };
   }
 
-  const url = constructUrl("/login", {
-    flash_type: errorDetails != "" ? "error" : "success",
-    flash_message:
-      errorDetails != "" ? errorDetails : "Successfully logged out",
-  });
-  redirect(url);
+  setFlashMessage("success", "Successfully logged out");
+  redirect("/login");
 }
 
 export async function signupAction(formData: FormData) {
@@ -126,7 +132,11 @@ export async function signupAction(formData: FormData) {
   } catch (error) {
     let details = "Failed to submit data";
     if (isAxiosError(error)) {
-      details = error.response?.data.error;
+      if (error.code == "ECONNREFUSED") {
+        details = "Something unexpected happens. Please check your connection";
+      } else {
+        details = error.response?.data.error;
+      }
     } else if (error instanceof Error) {
       details = error.message;
     }
@@ -146,7 +156,11 @@ export async function activationAction(formData: FormData) {
   } catch (error) {
     let details = "Failed to submit data";
     if (isAxiosError(error)) {
-      details = error.response?.data.error;
+      if (error.code == "ECONNREFUSED") {
+        details = "Something unexpected happens. Please check your connection";
+      } else {
+        details = error.response?.data.error;
+      }
     } else if (error instanceof Error) {
       details = error.message;
     }
@@ -157,11 +171,11 @@ export async function activationAction(formData: FormData) {
   }
 
   revalidatePath("/activation");
-  const flash = encodeQueryParams({
-    flash_type: "success",
-    flash_message: "Activation successful. Please log in to your account",
-  });
-  redirect(`/login?${flash}`);
+  setFlashMessage(
+    "success",
+    "Activation successful. Please log in to your account"
+  );
+  redirect("/login");
 }
 
 export async function resendActivationAction(formData: FormData) {
@@ -180,7 +194,11 @@ export async function resendActivationAction(formData: FormData) {
   } catch (error) {
     let details = "Failed to submit data";
     if (isAxiosError(error)) {
-      details = error.response?.data.error;
+      if (error.code == "ECONNREFUSED") {
+        details = "Something unexpected happens. Please check your connection";
+      } else {
+        details = error.response?.data.error;
+      }
     } else if (error instanceof Error) {
       details = error.message;
     }

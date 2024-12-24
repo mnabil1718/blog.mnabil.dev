@@ -1,27 +1,26 @@
 import { useToast } from "@/components/ui/use-toast";
 import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 function useCheckSearchParams() {
   const { toast } = useToast();
   const params = useSearchParams();
-  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     if (params.has("flash_message") && params.has("flash_type")) {
       const flashMessage = params.get("flash_message") as string;
       const flashType = params.get("flash_type") as string;
-      setMessage(flashMessage);
-      if (flashType == "error") {
-        showErrorToast(toast, message);
+
+      if (flashType === "error") {
+        showErrorToast(toast, flashMessage);
       } else {
-        showSuccessToast(toast, message);
+        showSuccessToast(toast, flashMessage);
       }
     }
-  }, [message, params, toast]);
+  }, [params, toast]);
 
-  return { message };
+  return {};
 }
 
 export default useCheckSearchParams;

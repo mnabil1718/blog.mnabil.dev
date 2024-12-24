@@ -7,13 +7,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PostSchemaType } from "@/validations/post";
-import { Save, Send } from "lucide-react";
+import { LoaderCircle, Save, Send } from "lucide-react";
 import React from "react";
 import { useFormContext, UseFormReturn } from "react-hook-form";
 import { MobileSidePanel } from "./MobileSidePanel";
+import { POST_ACTION } from "@/constants/post";
 
 const PostFormHeader = () => {
   const form = useFormContext<PostSchemaType>();
+
   return (
     <div className="relative p-5 w-full flex items-start gap-3 border-b border-border bg-background/80 saturate-100 backdrop-blur-[10px]">
       <FormField
@@ -39,12 +41,31 @@ const PostFormHeader = () => {
         )}
       />
 
-      <Button variant={"outline"} className="flex items-center gap-2">
-        <Save size={14} /> <span className="hidden md:block">Save</span>
+      {/* SAVE */}
+      <Button
+        type="submit"
+        name="action"
+        value={POST_ACTION.SAVE}
+        variant={"outline"}
+        className="flex items-center gap-2"
+        disabled={form.formState.isSubmitting || !form.formState.isValid}
+      >
+        <Save size={14} />
+        <span className="hidden md:block">Save</span>
       </Button>
-      <Button className="flex items-center gap-2">
-        <Send size={14} /> <span className="hidden md:block">Publish</span>
+
+      {/* PUBLISH */}
+      <Button
+        type="submit"
+        name="action"
+        value={POST_ACTION.PUBLISH}
+        className="flex items-center gap-2"
+        disabled={form.formState.isSubmitting || !form.formState.isValid}
+      >
+        <Send size={14} />
+        <span className="hidden md:block">Publish</span>
       </Button>
+
       <div className="block xl:!hidden">
         <MobileSidePanel />
       </div>

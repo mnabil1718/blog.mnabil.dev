@@ -18,12 +18,14 @@ import {
   resendActivationSchema,
   ResendActivationSchemaType,
 } from "@/validations/resend-activation";
-import { AuthActionResponse } from "@/actions/auth-types";
 import objectToFormData from "@/utils/object-to-form-data";
 import { resendActivationAction } from "@/actions/auth";
 import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
+import { ActionResponse } from "@/types/action-response";
+import { useCsrfToken } from "../CsrfContext";
 
-const ResendActivationForm = ({ csrfToken }: { csrfToken: string }) => {
+const ResendActivationForm = () => {
+  const csrfToken = useCsrfToken();
   const { toast } = useToast();
 
   const form = useForm<ResendActivationSchemaType>({
@@ -40,14 +42,14 @@ const ResendActivationForm = ({ csrfToken }: { csrfToken: string }) => {
       ...data,
       csrf_token: csrfToken,
     });
-    const response: AuthActionResponse = await resendActivationAction(formData);
+    const response: ActionResponse = await resendActivationAction(formData);
     if (response?.error && typeof response?.error === "string") {
       showErrorToast(toast, response.error);
     } else if (response?.error && typeof response?.error === "object") {
       for (const [key, message] of Object.entries(response.error)) {
         form.setError(key as keyof ResendActivationSchemaType, {
           type: "manual",
-          message,
+          message: message as string,
         });
       }
     }

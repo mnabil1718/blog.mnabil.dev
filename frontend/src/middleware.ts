@@ -1,16 +1,9 @@
 import { CsrfError, createCsrfProtect } from "@edge-csrf/nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import {
-  getSession,
-  logoutAction,
-  revokeSession,
-  setSession,
-} from "./actions/auth";
-import { encodeQueryParams } from "./utils/encode-query-params";
+import { getSession } from "./actions/auth";
 import { constructUrl } from "./utils/construct-url";
-import objectToFormData from "./utils/object-to-form-data";
-import { DefaultSession } from "./lib/session";
+import { setFlashMessage } from "./actions/flash";
 
 const csrfProtect = createCsrfProtect({
   cookie: {
@@ -48,13 +41,10 @@ export async function middleware(request: NextRequest) {
 
     // NO TOKEN
     if (session.authentication_token.token == "") {
+      setFlashMessage("error", "Please log in to your account first");
       return NextResponse.redirect(
         new URL(
-          constructUrl("/login", {
-            flash_type: "error",
-            flash_message: "Please log in to your account first",
-            next: intendedRoute,
-          }),
+          constructUrl("/login", { next: intendedRoute }),
           request.nextUrl.origin
         ).href
       );
@@ -67,14 +57,9 @@ export async function middleware(request: NextRequest) {
   ) {
     const session = await getSession();
     if (session.authentication_token.token != "") {
+      setFlashMessage("error", "you are already authenticated.");
       return NextResponse.redirect(
-        new URL(
-          constructUrl("/dashboard", {
-            flash_type: "error",
-            flash_message: "You are already authenticated",
-          }),
-          request.nextUrl.origin
-        ).href
+        new URL("/dashboard", request.nextUrl.origin).href
       );
     }
   }

@@ -19,11 +19,13 @@ import { Eye, EyeOff, LoaderCircle, User } from "lucide-react";
 import { signUpSchema, signUpSchemaType } from "@/validations/signup";
 import { signupAction } from "@/actions/auth";
 import objectToFormData from "@/utils/object-to-form-data";
-import { AuthActionResponse } from "@/actions/auth-types";
 import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
 import { useToast } from "../ui/use-toast";
+import { ActionResponse } from "@/types/action-response";
+import { useCsrfToken } from "../CsrfContext";
 
-const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
+const SignUpForm = () => {
+  const csrfToken = useCsrfToken();
   const { toast } = useToast();
   const [passwordVisible, setpasswordVisible] = useState<boolean>(false);
   const [passwordConfirmationVisible, setpasswordConfirmationVisible] =
@@ -46,14 +48,14 @@ const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
       ...data,
       csrf_token: csrfToken,
     });
-    const response: AuthActionResponse = await signupAction(formData);
+    const response: ActionResponse = await signupAction(formData);
     if (response?.error && typeof response?.error === "string") {
       showErrorToast(toast, response.error);
     } else if (response?.error && typeof response?.error === "object") {
       for (const [key, message] of Object.entries(response.error)) {
         form.setError(key as keyof signUpSchemaType, {
           type: "manual",
-          message,
+          message: message as string,
         });
       }
     }
@@ -123,17 +125,6 @@ const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Button
-                    variant={"ghost"}
-                    type="button"
-                    className="absolute right-0"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setpasswordVisible(!passwordVisible);
-                    }}
-                  >
-                    {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </Button>
                   <Input
                     type={passwordVisible ? "text" : "password"}
                     placeholder="Enter Password"
@@ -146,6 +137,17 @@ const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
                         : "border border-border"
                     )}
                   />
+                  <Button
+                    variant={"ghost"}
+                    type="button"
+                    className="absolute right-0 top-0"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setpasswordVisible(!passwordVisible);
+                    }}
+                  >
+                    {passwordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
                 </div>
               </FormControl>
               {form.formState.errors.password ? (
@@ -167,10 +169,22 @@ const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
               <FormLabel>Password Confirmation</FormLabel>
               <FormControl>
                 <div className="relative">
+                  <Input
+                    type={passwordConfirmationVisible ? "text" : "password"}
+                    placeholder="Enter Password Confirmation"
+                    autoComplete="new-password"
+                    {...field}
+                    className={cn(
+                      "pr-11",
+                      form.formState.errors.password_confirmation
+                        ? "border border-destructive focus-visible:ring-destructive"
+                        : "border border-border"
+                    )}
+                  />
                   <Button
                     variant={"ghost"}
                     type="button"
-                    className="absolute right-0"
+                    className="absolute right-0 top-0"
                     onClick={(e) => {
                       e.preventDefault();
                       setpasswordConfirmationVisible(
@@ -184,18 +198,6 @@ const SignUpForm = ({ csrfToken }: { csrfToken: string }) => {
                       <Eye size={16} />
                     )}
                   </Button>
-                  <Input
-                    type={passwordConfirmationVisible ? "text" : "password"}
-                    placeholder="Enter Password Confirmation"
-                    autoComplete="new-password"
-                    {...field}
-                    className={cn(
-                      "pr-11",
-                      form.formState.errors.password_confirmation
-                        ? "border border-destructive focus-visible:ring-destructive"
-                        : "border border-border"
-                    )}
-                  />
                 </div>
               </FormControl>
               <FormMessage />
