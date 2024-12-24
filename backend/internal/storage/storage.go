@@ -3,50 +3,14 @@ package storage
 import (
 	"errors"
 	"fmt"
-	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
-	"io"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/utils"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
-	"golang.org/x/image/bmp"
-	"golang.org/x/image/tiff"
-	"golang.org/x/image/webp"
 )
-
-var (
-	ErrUnsupportedFormat = errors.New("unsupported image format")
-	ErrFileRead          = errors.New("failed to read file")
-	ErrFileCreate        = errors.New("failed to create file")
-	ErrInvalidImage      = errors.New("invalid image dimensions")
-	ErrValidation        = errors.New("image validation failed")
-	ErrSystem            = errors.New("system error")
-)
-
-var CONTENT_DECODERS = map[string](func(r io.Reader) (image.Config, error)){
-	"image/jpeg": jpeg.DecodeConfig,
-	"image/png":  png.DecodeConfig,
-	"image/gif":  gif.DecodeConfig,
-	"image/tiff": tiff.DecodeConfig,
-	"image/webp": webp.DecodeConfig,
-	"image/bmp":  bmp.DecodeConfig,
-}
-
-var EXT_MAP = map[string]string{
-	"image/jpeg": ".jpg",
-	"image/png":  ".png",
-	"image/gif":  ".gif",
-	"image/tiff": ".tif",
-	"image/webp": ".webp",
-	"image/bmp":  ".bmp",
-}
 
 type ImageStorage struct {
 	path     string
@@ -73,75 +37,75 @@ func (s *ImageStorage) GetFullPath(image *data.Image) (string, error) {
 		basePath = s.path
 	}
 
-	if basePath == "" || image.Destination == "" {
-		return "", errors.New("invalid path or destination")
+	if basePath == "" || image.FileName == "" {
+		return "", errors.New("invalid path or filename")
 	}
 
-	return filepath.Join(basePath, image.Destination), nil
+	return filepath.Join(basePath, image.FileName), nil
 }
 
-func (s *ImageStorage) SaveTemp(file multipart.File, fileHeader multipart.FileHeader, path string, v *validator.Validator) (*data.Image, error) {
-	// Read the first 512 bytes to determine MIME type
-	buffer := make([]byte, 512)
-	if _, err := file.Read(buffer); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrFileRead, err)
+func (s *ImageStorage) Save(file multipart.File, fileHeader multipart.FileHeader, isTemp bool, path string, v *validator.Validator) (*data.Image, error) {
+	// Step 1: Determine MIME type and validate support
+	mimeType, err := detectMimeType(file)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrUnsupportedFormat, err)
 	}
 
-	fileType := http.DetectContentType(buffer)
-	decoder, ok := CONTENT_DECODERS[fileType]
-	if !ok {
-		return nil, ErrUnsupportedFormat
-	}
-
-	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrSystem, err)
-	}
-
-	imageConfig, err := decoder(file)
+	// Step 2: Decode image metadata
+	width, height, err := decodeImageMetadata(file, mimeType)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrInvalidImage, err)
 	}
-	width := imageConfig.Width
-	height := imageConfig.Height
 
-	extension := EXT_MAP[fileType]
+	// Step 3: Generate file name and extension
+	name := utils.GenerateImageName(fileHeader.Filename)
+	extension := EXT_MAP[mimeType]
 	if extension == "" {
 		return nil, ErrUnsupportedFormat
 	}
+	filename := name + extension
 
-	fileSize := fileHeader.Size
-	filename := utils.GenerateFileName(fileHeader.Filename)
-	destination := filename + extension
-
+	// Step 4: Prepare the image metadata
 	image := &data.Image{
-		FileName:    filename,
-		Alt:         filename,
-		Destination: destination,
-		Size:        int32(fileSize),
-		Width:       int32(width),
-		Height:      int32(height),
-		ContentType: fileType,
-		IsTemp:      true,
+		Name:     name,
+		Alt:      name,
+		FileName: filename,
+		Size:     int32(fileHeader.Size),
+		Width:    int32(width),
+		Height:   int32(height),
+		MIMEType: mimeType,
+		IsTemp:   isTemp,
 	}
 
-	if data.ValidateImage(v, image); !v.Valid() {
-		return nil, ErrValidation
+	// Step 5: Validate image metadata
+	if err := validateImage(v, image); err != nil {
+		return nil, err
 	}
 
-	filePath := filepath.Join(path, destination)
-	f, err := os.Create(filePath)
-	if err != nil {
+	// Step 6: Save the file to disk
+	if err := saveFileToDisk(file, filepath.Join(path, filename)); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrFileCreate, err)
-	}
-	defer f.Close()
-
-	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrSystem, err)
-	}
-
-	if _, err = io.Copy(f, file); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrSystem, err)
 	}
 
 	return image, nil
+}
+
+func (s *ImageStorage) Move(currentPath string, newPath string) error {
+	// Step 1: Ensure the source file exists
+	if _, err := os.Stat(currentPath); os.IsNotExist(err) {
+		return ErrFileNotFound
+	}
+
+	// Step 2: Ensure the destination directory exists
+	destinationDir := filepath.Dir(newPath)
+	if _, err := os.Stat(destinationDir); os.IsNotExist(err) {
+		return ErrDirectoryNotFound
+	}
+
+	// Step 3: Move the file
+	if err := os.Rename(currentPath, newPath); err != nil {
+		return ErrFileMove
+	}
+
+	return nil
 }

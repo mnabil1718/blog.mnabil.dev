@@ -8,9 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
-
-var validFilenameRegex = regexp.MustCompile(`^([a-z0-9-]+-\w+-\d{8}_\d{6})$`)
 
 func Slugify(text string) string {
 	text = strings.ToLower(text)
@@ -21,7 +20,7 @@ func Slugify(text string) string {
 	return text
 }
 
-func GenerateFileName(fileName string) string {
+func GenerateImageName(fileName string) string {
 	id := uuid.New().String()
 
 	fileName = strings.Split(fileName, ".")[0]
@@ -30,10 +29,10 @@ func GenerateFileName(fileName string) string {
 	return fmt.Sprintf("%s-%s-%s", slugifiedName, id, timestamp)
 }
 
-func ValidateImageFilename(filename string) error {
+func ValidateImageName(name string) error {
 
-	if !validFilenameRegex.MatchString(filename) {
-		return errors.New("invalid filename")
+	if !validator.ImageNameRX.MatchString(name) {
+		return errors.New("invalid image name")
 	}
 
 	return nil

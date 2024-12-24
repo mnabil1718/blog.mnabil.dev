@@ -11,15 +11,15 @@ import (
 )
 
 type imageMetadataResponse struct {
-	ID          int64  `json:"id"`
-	FileName    string `json:"file_name"`
-	Alt         string `json:"alt"`
-	Destination string `json:"destination"`
-	Size        int32  `json:"size,omitempty"`
-	Width       int32  `json:"width,omitempty"`
-	Height      int32  `json:"height,omitempty"`
-	ContentType string `json:"content_type"`
-	URL         string `json:"url"`
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
+	Alt      string `json:"alt"`
+	FileName string `json:"file_name"`
+	Size     int32  `json:"size,omitempty"`
+	Width    int32  `json:"width,omitempty"`
+	Height   int32  `json:"height,omitempty"`
+	MIMEType string `json:"mime_type"`
+	URL      string `json:"url"`
 }
 
 func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Reque
 
 	v := validator.New()
 
-	image, err := app.storage.SaveTemp(file, *fileHeader, app.config.Upload.TempPath, v)
+	image, err := app.storage.Save(file, *fileHeader, true, app.config.Upload.TempPath, v)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrUnsupportedFormat):
@@ -53,8 +53,8 @@ func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Reque
 
 	err = app.models.Images.Insert(image)
 	if err != nil {
-		if errors.Is(err, data.ErrDuplicateFileName) {
-			v.AddError("file_name", "name already exists")
+		if errors.Is(err, data.ErrDuplicateImageName) {
+			v.AddError("name", "name already exists")
 			app.failedValidationResponse(w, r, v.Errors)
 		} else {
 			app.serverErrorResponse(w, r, err)
@@ -62,22 +62,34 @@ func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/images/%d", image.ID))
+	response := &imageMetadataResponse{
+		ID:       image.ID,
+		Name:     image.Name,
+		FileName: image.FileName,
+		Alt:      image.Alt,
+		Size:     image.Size,
+		Width:    image.Width,
+		Height:   image.Height,
+		MIMEType: image.MIMEType,
+		URL:      app.generateImageURL(image.Name),
+	}
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"image": image}, headers)
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/images/%s", response.Name))
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"image": response}, headers)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *application) getImagesHandler(w http.ResponseWriter, r *http.Request) {
-	filename, err := app.getFilenameFromRequestContext(r)
+	name, err := app.getImageNameFromRequestContext(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 	}
 
-	image, err := app.models.Images.GetByFilename(filename)
+	image, err := app.models.Images.GetByName(name)
 	if err != nil {
 		if errors.Is(err, data.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -98,12 +110,12 @@ func (app *application) getImagesHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *application) getImagesMetadataHandler(w http.ResponseWriter, r *http.Request) {
-	filename, err := app.getFilenameFromRequestContext(r)
+	name, err := app.getImageNameFromRequestContext(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 	}
 
-	image, err := app.models.Images.GetByFilename(filename)
+	image, err := app.models.Images.GetByName(name)
 	if err != nil {
 		if errors.Is(err, data.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -115,15 +127,15 @@ func (app *application) getImagesMetadataHandler(w http.ResponseWriter, r *http.
 	}
 
 	response := &imageMetadataResponse{
-		ID:          image.ID,
-		FileName:    image.FileName,
-		Alt:         image.Alt,
-		Destination: image.Destination,
-		Size:        image.Size,
-		Width:       image.Width,
-		Height:      image.Height,
-		ContentType: image.ContentType,
-		URL:         app.generateImageURL(image.FileName),
+		ID:       image.ID,
+		Name:     image.Name,
+		FileName: image.FileName,
+		Alt:      image.Alt,
+		Size:     image.Size,
+		Width:    image.Width,
+		Height:   image.Height,
+		MIMEType: image.MIMEType,
+		URL:      app.generateImageURL(image.Name),
 	}
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"image": response}, nil)

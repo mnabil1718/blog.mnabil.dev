@@ -54,16 +54,16 @@ func (app *application) getIdFromRequestContext(request *http.Request) (int64, e
 	return id, nil
 }
 
-func (app *application) getFilenameFromRequestContext(request *http.Request) (string, error) {
+func (app *application) getImageNameFromRequestContext(request *http.Request) (string, error) {
 	params := httprouter.ParamsFromContext(request.Context())
-	filename := params.ByName("filename")
+	name := params.ByName("name")
 
-	err := utils.ValidateImageFilename(filename)
+	err := utils.ValidateImageName(name)
 	if err != nil {
 		return "", err
 	}
 
-	return filename, nil
+	return name, nil
 }
 
 type envelope map[string]interface{}
@@ -197,6 +197,6 @@ func (app *application) getSecureCookieFlag() bool {
 	return secureFlag
 }
 
-func (application *application) generateImageURL(fileName string) string {
-	return fmt.Sprintf("http://%s:%d/v1/images/%s", application.config.Host, application.config.Port, fileName)
+func (application *application) generateImageURL(name string) string {
+	return fmt.Sprintf("http://%s:%d/v1/images/%s", application.config.Host, application.config.Port, name)
 }
