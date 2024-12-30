@@ -14,7 +14,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
 import { useToast } from "@/components/ui/use-toast";
 import { POST_ACTION, POST_STATUS } from "@/constants/post";
 
-const AddPostForm = () => {
+const PostForm = () => {
   const { toast } = useToast();
   const csrfToken = useCsrfToken();
   const form = useForm<PostSchemaType>({
@@ -112,4 +112,4 @@ const AddPostForm = () => {
   );
 };
 
-export default AddPostForm;
+export default PostForm;
