@@ -22,6 +22,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/images", app.requireAuthenticatedUser(app.uploadImagesHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/posts", app.requireAuthenticatedUser(app.createPostHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/posts/:id", app.requireAuthenticatedUser(app.getPostByIDHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", app.activateUserHandler)

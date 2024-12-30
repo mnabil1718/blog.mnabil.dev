@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -51,6 +52,32 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	headers.Set("Location", fmt.Sprintf("/v1/posts/%d", post.ID))
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"post": post}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+}
+
+func (app *application) getPostByIDHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.getIdFromRequestContext(r)
+	if err != nil || id < 1 {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	post, err := app.models.Posts.GetByID(id)
+	if err != nil {
+		if errors.Is(err, data.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"post": post}, r.Header)
+
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

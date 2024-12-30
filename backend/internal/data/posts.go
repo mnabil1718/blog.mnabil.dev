@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
@@ -95,4 +96,36 @@ func (model PostModel) Insert(post *Post) error {
 	}
 
 	return nil
+}
+
+func (model PostModel) GetByID(id int64) (*Post, error) {
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	SQL := `SELECT 
+						id, user_id, title, preview, content, slug, image_name, tags, status, created_at, updated_at, deleted_at, version
+					FROM posts WHERE id=$1`
+
+	post := &Post{}
+	m := pgtype.NewMap()
+	var tags []string
+
+	args := []interface{}{id}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&post.ID, &post.UserID, &post.Title, &post.Preview, &post.Content, &post.Slug, &post.ImageName, m.SQLScanner(&tags), &post.Status, &post.CreatedAt, &post.UpdatedAt, &post.DeletedAt, &post.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+
+		default:
+			return nil, err
+		}
+	}
+
+	post.Tags = tags
+
+	return post, nil
 }
