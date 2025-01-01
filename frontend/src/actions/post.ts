@@ -3,30 +3,30 @@
 import axios, { isAxiosError } from "axios";
 import { getSession } from "./auth";
 import { revalidatePath } from "next/cache";
-import { encodeQueryParams } from "@/utils/encode-query-params";
 import { redirect } from "next/navigation";
 import { setFlashMessage } from "./flash";
 
-export async function savePostAction(formData: FormData) {
+export async function updatePostAction(id: number, formData: FormData) {
   var errorDetails: string = "";
 
   try {
     const session = await getSession();
 
     const body = {
-      user_id: session.user.id,
       title: formData.get("title") as string,
       slug: formData.get("slug") as string,
       preview: formData.get("preview") as string,
       content: formData.get("content") as string,
-      image_name: formData.get("image_name") as string,
-      image_alt: formData.get("image_alt") as string,
+      image: {
+        name: formData.get("image_name") as string,
+        alt: formData.get("image_alt") as string,
+      },
       status: formData.get("status") as string,
       tags: formData.getAll("tags[]") as string[],
     };
 
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts`,
+    const res = await axios.patch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/${id}`,
       body,
       {
         headers: {

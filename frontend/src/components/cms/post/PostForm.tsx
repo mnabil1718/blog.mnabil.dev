@@ -9,28 +9,29 @@ import PostEditorForm from "./PostEditorForm";
 import PostMetadataForm from "./PostMetadataForm";
 import objectToFormData from "@/utils/object-to-form-data";
 import { useCsrfToken } from "@/components/CsrfContext";
-import { savePostAction } from "@/actions/post";
+import { updatePostAction } from "@/actions/post";
 import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
 import { useToast } from "@/components/ui/use-toast";
 import { POST_ACTION, POST_STATUS } from "@/constants/post";
+import { Post } from "@/types/post";
 
-const PostForm = () => {
+const PostForm = ({ initData }: { initData: Post }) => {
   const { toast } = useToast();
   const csrfToken = useCsrfToken();
   const form = useForm<PostSchemaType>({
     resolver: zodResolver(postSchema),
     mode: "onSubmit",
     defaultValues: {
-      title: "",
-      slug: "",
-      preview: "",
-      content: "",
+      title: initData.title ?? "",
+      slug: initData.slug ?? "",
+      preview: initData.preview ?? "",
+      content: initData.content ?? "",
       image: {
-        image_name: "",
-        image_alt: "",
-        image_url: "",
+        name: initData.image?.name ?? "",
+        alt: initData.image?.alt ?? "",
+        url: initData.image?.url ?? "",
       },
-      tags: [],
+      tags: initData.tags ?? [],
     },
   });
 
@@ -59,13 +60,14 @@ const PostForm = () => {
       preview: data.preview,
       tags: data.tags,
       content: data.content,
-      image_name: data.image.image_name,
-      image_alt: data.image.image_alt,
-      status: POST_STATUS.DRAFT,
+      image_name: data.image.name,
+      image_alt: data.image.alt,
+      status: status,
       csrf_token: csrfToken,
     });
 
-    const response = await savePostAction(formData);
+    const updatePostWithID = updatePostAction.bind(null, initData.id);
+    const response = await updatePostWithID(formData);
 
     if (response?.error) {
       if (typeof response.error === "string") {

@@ -1,6 +1,6 @@
 import { getSession } from "@/actions/auth";
 import PostForm from "@/components/cms/post/PostForm";
-import { PostSchemaType } from "@/validations/post";
+import { Post } from "@/types/post";
 import axios, { isAxiosError } from "axios";
 import { notFound } from "next/navigation";
 import React from "react";
@@ -33,6 +33,6 @@ export default async function EditPostPage({
 }: {
   params: { id: number };
 }) {
-  const post = await getPostByID(params.id);
-  return <PostForm />;
+  const post: Post = await getPostByID(params.id);
+  return <PostForm initData={post} />;
 }

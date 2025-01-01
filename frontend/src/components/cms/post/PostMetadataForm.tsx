@@ -68,8 +68,8 @@ const PostMetadataForm = () => {
       });
       const response: ActionResponse = await uploadImageAction(formData);
       if (response?.error) {
-        form.setValue("image.image_url", "");
-        form.setValue("image.image_name", "");
+        form.setValue("image.url", "");
+        form.setValue("image.name", "");
 
         if (typeof response?.error === "string") {
           showErrorToast(toast, response.error);
@@ -77,7 +77,7 @@ const PostMetadataForm = () => {
 
         if (typeof response?.error === "object") {
           for (const [key, message] of Object.entries(response.error)) {
-            form.setError("image.image_name", {
+            form.setError("image.name", {
               type: "manual",
               message,
             });
@@ -86,21 +86,21 @@ const PostMetadataForm = () => {
         return;
       }
 
-      form.setValue("image.image_name", response.image.name, {
+      form.setValue("image.name", response.image.name, {
         shouldValidate: true,
       });
-      form.setValue("image.image_url", response.image.url, {
+      form.setValue("image.url", response.image.url, {
         shouldValidate: true,
       });
 
-      const isNameValid = await form.trigger("image.image_name");
+      const isNameValid = await form.trigger("image.name");
 
       if (isNameValid) {
-        form.clearErrors("image.image_name");
+        form.clearErrors("image.name");
       }
     } else {
-      form.setValue("image.image_url", "");
-      form.setValue("image.image_name", "", { shouldValidate: true });
+      form.setValue("image.url", "");
+      form.setValue("image.name", "", { shouldValidate: true });
     }
   }
 
@@ -108,7 +108,7 @@ const PostMetadataForm = () => {
     <>
       <FormField
         control={form.control}
-        name="image.image_name"
+        name="image.name"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Thumbnail</FormLabel>
@@ -119,7 +119,7 @@ const PostMetadataForm = () => {
                   accept=".jpg,.jpeg,.png,.webp"
                   dropMessage="Drop file or click here"
                   handleOnDrop={handleOnDrop}
-                  previewURL={form.watch("image.image_url")}
+                  previewURL={form.watch("image.url")}
                   classNameWrapper="relative h-32"
                 />
               </>
@@ -131,7 +131,7 @@ const PostMetadataForm = () => {
 
       <FormField
         control={form.control}
-        name="image.image_alt"
+        name="image.alt"
         render={({ field }) => (
           <FormItem>
             <FormControl>

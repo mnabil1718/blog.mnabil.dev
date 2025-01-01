@@ -2,7 +2,10 @@
 
 import React, { forwardRef, useEffect, useState } from "react";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import {
+  InitialEditorStateType,
+  LexicalComposer,
+} from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -34,27 +37,9 @@ import ImagesPlugin from "./plugins/ImagesPlugin";
 import { ImageNode } from "./nodes/ImageNode";
 import { EditorState, LexicalEditor } from "lexical";
 import { cn } from "@/lib/utils";
+import { EMPTY_STATE } from "./constants/state";
 
 const placeholder = "Start writing...";
-
-const editorConfig = {
-  namespace: "Lexical Editor",
-  nodes: [
-    HeadingNode,
-    ListNode,
-    ListItemNode,
-    QuoteNode,
-    CodeNode,
-    CodeHighlightNode,
-    AutoLinkNode,
-    LinkNode,
-    ImageNode,
-  ],
-  onError(error: Error) {
-    throw error;
-  },
-  theme: DefaultTheme,
-};
 
 const Placeholder = ({ placeholder }: { placeholder: string }) => {
   return (
@@ -87,10 +72,31 @@ interface EditorProps {
     editor: LexicalEditor,
     tags: Set<string>
   ) => void;
+  initState?: InitialEditorStateType;
   className?: string;
 }
 
 const Editor = React.forwardRef((props: EditorProps, ref: any) => {
+  const editorConfig = {
+    namespace: "Lexical Editor",
+    nodes: [
+      HeadingNode,
+      ListNode,
+      ListItemNode,
+      QuoteNode,
+      CodeNode,
+      CodeHighlightNode,
+      AutoLinkNode,
+      LinkNode,
+      ImageNode,
+    ],
+    onError(error: Error) {
+      throw error;
+    },
+    theme: DefaultTheme,
+    editorState: props.initState ? props.initState : EMPTY_STATE,
+  };
+
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);

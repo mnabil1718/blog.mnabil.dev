@@ -11,6 +11,7 @@ import { useFormContext } from "react-hook-form";
 
 const PostEditorForm = () => {
   const form = useFormContext<PostSchemaType>();
+
   return (
     <FormField
       control={form.control}
@@ -21,6 +22,7 @@ const PostEditorForm = () => {
           <FormControl>
             <Editor
               {...field}
+              initState={form.getValues("content") as string}
               onChange={(
                 editorState: EditorState,
                 editor: LexicalEditor,

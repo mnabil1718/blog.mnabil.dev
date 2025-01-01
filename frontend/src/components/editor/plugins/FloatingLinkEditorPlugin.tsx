@@ -249,7 +249,10 @@ function FloatingLinkEditor({
             role="button"
             tabIndex={0}
             onMouseDown={(event) => event.preventDefault()}
-            onClick={handleLinkSubmission}
+            onClick={(e) => {
+              e.preventDefault();
+              handleLinkSubmission();
+            }}
           >
             <Check size={15} />
           </Button>
