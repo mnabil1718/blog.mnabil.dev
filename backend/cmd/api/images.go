@@ -10,18 +10,6 @@ import (
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
-type imageMetadataResponse struct {
-	ID       int64  `json:"id"`
-	Name     string `json:"name"`
-	Alt      string `json:"alt"`
-	FileName string `json:"file_name"`
-	Size     int32  `json:"size,omitempty"`
-	Width    int32  `json:"width,omitempty"`
-	Height   int32  `json:"height,omitempty"`
-	MIMEType string `json:"mime_type"`
-	URL      string `json:"url"`
-}
-
 func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Request) {
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
@@ -62,22 +50,12 @@ func (app *application) uploadImagesHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response := &imageMetadataResponse{
-		ID:       image.ID,
-		Name:     image.Name,
-		FileName: image.FileName,
-		Alt:      image.Alt,
-		Size:     image.Size,
-		Width:    image.Width,
-		Height:   image.Height,
-		MIMEType: image.MIMEType,
-		URL:      app.generateImageURL(image.Name),
-	}
+	image.URL = app.generateImageURL(image.Name)
 
 	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/images/%s", response.Name))
+	headers.Set("Location", fmt.Sprintf("/v1/images/%s", image.Name))
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"image": response}, headers)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"image": image}, headers)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -91,12 +69,12 @@ func (app *application) getImagesHandler(w http.ResponseWriter, r *http.Request)
 
 	image, err := app.models.Images.GetByName(name)
 	if err != nil {
-		if errors.Is(err, data.ErrRecordNotFound) {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
-			return
+		default:
+			app.serverErrorResponse(w, r, err)
 		}
-
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -117,28 +95,18 @@ func (app *application) getImagesMetadataHandler(w http.ResponseWriter, r *http.
 
 	image, err := app.models.Images.GetByName(name)
 	if err != nil {
-		if errors.Is(err, data.ErrRecordNotFound) {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
-			return
+		default:
+			app.serverErrorResponse(w, r, err)
 		}
-
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	response := &imageMetadataResponse{
-		ID:       image.ID,
-		Name:     image.Name,
-		FileName: image.FileName,
-		Alt:      image.Alt,
-		Size:     image.Size,
-		Width:    image.Width,
-		Height:   image.Height,
-		MIMEType: image.MIMEType,
-		URL:      app.generateImageURL(image.Name),
-	}
+	image.URL = app.generateImageURL(image.Name)
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"image": response}, nil)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"image": image}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

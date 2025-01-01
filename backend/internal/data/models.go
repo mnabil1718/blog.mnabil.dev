@@ -2,7 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"encoding/json"
 	"errors"
 )
 
@@ -14,6 +13,7 @@ var (
 type UsersModelInterface interface {
 	Insert(user *User) error
 	GetByEmail(email string) (*User, error)
+	GetByID(id int64) (*User, error)
 	Update(user *User) error
 	GetForToken(scope string, tokenPlainText string) (*User, error)
 }
@@ -34,15 +34,4 @@ func NewModels(db *sql.DB) Models {
 		Posts:       PostModel{DB: db},
 		Images:      ImageModel{DB: db},
 	}
-}
-
-type NullString sql.NullString
-
-// MarshalJSON method is called by json.Marshal,
-// whenever it is of type NullString
-func (field *NullString) MarshalJSON() ([]byte, error) {
-	if !field.Valid {
-		return []byte("null"), nil
-	}
-	return json.Marshal(field.String)
 }

@@ -23,6 +23,7 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/posts", app.requireAuthenticatedUser(app.createPostHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/posts/:id", app.requireAuthenticatedUser(app.getPostByIDHandler))
+	router.HandlerFunc(http.MethodPatch, "/v1/posts/:id", app.requireAuthenticatedUser(app.updatePostHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activation", app.activateUserHandler)

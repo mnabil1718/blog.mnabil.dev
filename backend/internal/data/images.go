@@ -18,11 +18,12 @@ type Image struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
 	Alt       string    `json:"alt"`
-	FileName  string    `json:"file_name"`
+	FileName  string    `json:"file_name,omitempty"`
 	Size      int32     `json:"size,omitempty"`
 	Width     int32     `json:"width,omitempty"`
 	Height    int32     `json:"height,omitempty"`
-	MIMEType  string    `json:"mime_type"`
+	MIMEType  string    `json:"mime_type,omitempty"`
+	URL       string    `json:"url,omitempty"` // will always be empty from DB, remember to set in handlers
 	IsTemp    bool      `json:"-"`
 	UpdatedAt time.Time `json:"-"`
 	CreatedAt time.Time `json:"created_at,omitempty"`

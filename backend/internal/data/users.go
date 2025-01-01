@@ -18,12 +18,12 @@ var (
 
 type User struct {
 	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Activated bool      `json:"activated"`
+	Name      string    `json:"name,omitempty"`
+	Email     string    `json:"email,omitempty"`
+	Activated bool      `json:"activated,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	Password  password  `json:"-"`
 	Version   int32     `json:"-"`
-	CreatedAt time.Time `json:"created_at"`
 }
 
 var AnonymousUser = &User{}
@@ -108,6 +108,27 @@ func (model UserModel) Insert(user *User) error {
 	}
 
 	return nil
+}
+
+func (model UserModel) GetByID(id int64) (*User, error) {
+	SQL := `SELECT id, name, email, password, activated, created_at, version 
+			FROM users WHERE id = $1`
+
+	user := &User{}
+	args := []interface{}{id}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&user.ID, &user.Name, &user.Email, &user.Password.hash, &user.Activated, &user.CreatedAt, &user.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+	return user, nil
 }
 
 func (model UserModel) GetByEmail(email string) (*User, error) {

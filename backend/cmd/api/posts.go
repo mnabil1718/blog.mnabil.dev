@@ -4,26 +4,29 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path/filepath"
+	"time"
 
 	"github.com/mnabil1718/blog.mnabil.dev/internal/data"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
+type updatePostRequest struct {
+	Title   *string `json:"title"`
+	Slug    *string `json:"slug"`
+	Preview *string `json:"preview"`
+	Content *string `json:"content"`
+	Image   *struct {
+		Name string `json:"name"`
+		Alt  string `json:"alt"`
+	} `json:"image"`
+	Status *string  `json:"status"`
+	Tags   []string `json:"tags"`
+}
+
 type CreatePostRequest struct {
 	UserID int64 `json:"user_id"`
 }
-
-// type createPostRequest struct {
-// 	UserID    int64    `json:"user_id"`
-// 	Title     string   `json:"title"`
-// 	Slug      string   `json:"slug"`
-// 	Preview   string   `json:"preview"`
-// 	Content   string   `json:"content"`
-// 	ImageName string   `json:"image_name"`
-// 	ImageAlt  string   `json:"image_alt"`
-// 	Status    string   `json:"status"`
-// 	Tags      []string `json:"tags"`
-// }
 
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var createPostRequest CreatePostRequest
@@ -34,7 +37,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	post := &data.Post{UserID: createPostRequest.UserID}
+	post := &data.Post{Author: &data.User{ID: createPostRequest.UserID}}
 
 	v := validator.New()
 	if data.ValidatePostUserIDOnly(v, post); !v.Valid() {
@@ -66,14 +69,47 @@ func (app *application) getPostByIDHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	post, err := app.models.Posts.GetByID(id)
+
 	if err != nil {
-		if errors.Is(err, data.ErrRecordNotFound) {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if post.Author != nil {
+		user, err := app.models.Users.GetByID(post.Author.ID)
+		if err != nil {
+			switch {
+			case errors.Is(err, data.ErrRecordNotFound):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
 			return
 		}
 
-		app.serverErrorResponse(w, r, err)
-		return
+		post.Author = &data.User{ID: user.ID, Name: user.Name, Email: user.Email}
+	}
+
+	if post.Image != nil {
+		image, err := app.models.Images.GetByName(post.Image.Name)
+		if err != nil {
+			switch {
+			case errors.Is(err, data.ErrRecordNotFound):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+			return
+		}
+
+		post.Image = image
+		post.Image.URL = app.generateImageURL(post.Image.Name)
+
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"post": post}, r.Header)
@@ -84,94 +120,131 @@ func (app *application) getPostByIDHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
-// func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
-// 	var createPostRequest createPostRequest
+func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 
-// 	err := app.readJSON(w, r, &createPostRequest)
-// 	if err != nil {
-// 		app.badRequestResponse(w, r, err)
-// 		return
-// 	}
+	id, err := app.getIdFromRequestContext(r)
+	if err != nil || id < 1 {
+		app.notFoundResponse(w, r)
+		return
+	}
 
-// 	image, err := app.models.Images.GetByName(createPostRequest.ImageName)
-// 	if err != nil {
-// 		if errors.Is(err, data.ErrRecordNotFound) {
-// 			app.notFoundResponse(w, r)
-// 			return
-// 		}
+	var updatePostRequest updatePostRequest
+	err = app.readJSON(w, r, &updatePostRequest)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
 
-// 		app.serverErrorResponse(w, r, err)
-// 		return
-// 	}
+	post, err := app.models.Posts.GetByID(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
 
-// 	image.Alt = createPostRequest.ImageAlt
-// 	image.IsTemp = false
-// 	image.UpdatedAt = time.Now()
+	v := validator.New()
 
-// 	v := validator.New()
+	if updatePostRequest.Image != nil {
+		image, err := app.models.Images.GetByName(updatePostRequest.Image.Name)
+		if err != nil {
+			switch {
+			case errors.Is(err, data.ErrRecordNotFound):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+			return
+		}
 
-// 	if data.ValidateImage(v, image); !v.Valid() {
-// 		app.failedValidationResponse(w, r, v.Errors)
-// 		return
-// 	}
+		image.Alt = updatePostRequest.Image.Alt
+		image.IsTemp = false
+		image.UpdatedAt = time.Now()
 
-// 	if image.IsTemp {
-// 		origin := filepath.Join(app.config.Upload.TempPath, image.FileName)
-// 		destination := filepath.Join(app.config.Upload.Path, image.FileName)
-// 		err = app.storage.Move(origin, destination)
-// 		if err != nil {
-// 			app.serverErrorResponse(w, r, err)
-// 			return
-// 		}
-// 	}
+		if data.ValidateImage(v, image); !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		}
 
-// 	err = app.models.Images.Update(image)
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, data.ErrEditConflict):
-// 			app.editConflictResponse(w, r)
-// 		default:
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+		if image.IsTemp {
+			origin := filepath.Join(app.config.Upload.TempPath, image.FileName)
+			destination := filepath.Join(app.config.Upload.Path, image.FileName)
+			err = app.storage.Move(origin, destination)
+			if err != nil {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+		}
 
-// 	post := &data.Post{
-// 		UserID:    createPostRequest.UserID,
-// 		Title:     createPostRequest.Title,
-// 		Slug:      createPostRequest.Slug,
-// 		Preview:   createPostRequest.Preview,
-// 		Content:   createPostRequest.Content,
-// 		ImageName: createPostRequest.ImageName,
-// 		Status:    createPostRequest.Status,
-// 		Tags:      createPostRequest.Tags,
-// 	}
+		err = app.models.Images.Update(image)
+		if err != nil {
+			switch {
+			case errors.Is(err, data.ErrEditConflict):
+				app.editConflictResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+			return
+		}
 
-// 	v.ResetErrors() // reuse the same validator struct for post validation
+		post.Image = image
+	}
 
-// 	if data.ValidatePost(v, post); !v.Valid() {
-// 		app.failedValidationResponse(w, r, v.Errors)
-// 		return
-// 	}
+	if updatePostRequest.Slug != nil {
+		post.Slug = updatePostRequest.Slug
+	}
 
-// 	err = app.models.Posts.Insert(post)
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, data.ErrDuplicateSlug):
-// 			v.AddError("slug", "slug already exists")
-// 			app.failedValidationResponse(w, r, v.Errors)
+	if updatePostRequest.Title != nil {
+		post.Title = updatePostRequest.Title
+	}
 
-// 		default:
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+	if updatePostRequest.Preview != nil {
+		post.Preview = updatePostRequest.Preview
+	}
 
-// 	headers := make(http.Header)
-// 	headers.Set("Location", fmt.Sprintf("/v1/posts/%d", post.ID))
+	if updatePostRequest.Content != nil {
+		post.Content = updatePostRequest.Content
+	}
 
-// 	err = app.writeJSON(w, http.StatusCreated, envelope{"post": post}, headers)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 	}
-// }
+	if updatePostRequest.Status != nil {
+		post.Status = *updatePostRequest.Status
+	}
+
+	if updatePostRequest.Tags != nil {
+		post.Tags = updatePostRequest.Tags
+	}
+
+	v.ResetErrors() // reuse the same validator struct for post validation
+
+	if data.ValidatePost(v, post); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// check if current user is post
+	// author otherwise update error
+	user := app.contextGetUser(r)
+	post.Author.ID = user.ID
+
+	err = app.models.Posts.Update(post)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/posts/%d", post.ID))
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"post": post}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

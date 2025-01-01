@@ -17,59 +17,37 @@ var (
 
 type Post struct {
 	ID        int64        `json:"id"`
-	UserID    int64        `json:"-"`
-	Title     *NullString  `json:"title,omitempty"`
-	Slug      *NullString  `json:"slug,omitempty"`
-	Preview   *NullString  `json:"preview,omitempty"`
-	Content   *NullString  `json:"content,omitempty"`
-	ImageName *NullString  `json:"image_name,omitempty"`
+	Author    *User        `json:"author,omitempty"`
+	Title     *string      `json:"title"`
+	Slug      *string      `json:"slug"`
+	Preview   *string      `json:"preview"`
+	Content   *string      `json:"content"`
 	Status    string       `json:"status,omitempty"`
-	Tags      []string     `json:"tags,omitempty"`
+	Tags      []string     `json:"tags"`
+	Image     *Image       `json:"image,omitempty"`
 	UpdatedAt time.Time    `json:"updated_at,omitempty"`
 	CreatedAt time.Time    `json:"created_at,omitempty"`
 	DeletedAt sql.NullTime `json:"-"`
 	Version   int32        `json:"-"`
 }
 
-type Author struct {
-	ID    int64  `json:"id"`
-	Name  string `json:"name,omitempty"`
-	Email string `json:"email,omitempty"`
-}
-
-type PostWithAuthor struct {
-	ID        int64        `json:"id"`
-	Author    Author       `json:"author"`
-	Title     *NullString  `json:"title,omitempty"`
-	Slug      *NullString  `json:"slug,omitempty"`
-	Preview   *NullString  `json:"preview,omitempty"`
-	Content   *NullString  `json:"content,omitempty"`
-	ImageName *NullString  `json:"image_name,omitempty"`
-	Status    string       `json:"status,omitempty"`
-	Tags      []string     `json:"tags,omitempty"`
-	UpdatedAt time.Time    `json:"updated_at,omitempty"`
-	CreatedAt time.Time    `json:"created_at,omitempty"`
-	DeletedAt sql.NullTime `json:"-"`
-	Version   int32        `json:"-"`
-}
-
-func ValidatePostImageName(v *validator.Validator, imageName *NullString) {
-	v.Check(imageName.String != "", "image_name", "must be provided")
-	v.Check(validator.Matches(imageName.String, validator.ImageNameRX), "image_name", "must be a valid image name")
+func ValidatePostImageName(v *validator.Validator, imageName string) {
+	v.Check(imageName != "", "image", "must be provided")
+	v.Check(validator.Matches(imageName, validator.ImageNameRX), "image", "must be a valid image name")
 }
 
 func ValidatePostUserIDOnly(v *validator.Validator, post *Post) {
-	v.Check(post.UserID > 0, "user_id", "invalid user id")
+	v.Check(post.Author.ID > 0, "author", "invalid user id")
 }
 
 func ValidatePost(v *validator.Validator, post *Post) {
-	v.Check(post.UserID > 0, "user_id", "invalid user id")
-	v.Check(post.Title.String != "", "title", "must be provided")
-	v.Check(len(post.Title.String) <= 500, "title", "must not be more than 500 bytes long")
-	v.Check(post.Slug.String != "", "slug", "must be provided")
-	v.Check(post.Preview.String != "", "preview", "must be provided")
-	v.Check(post.Content.String != "", "content", "must be provided")
-	ValidatePostImageName(v, post.ImageName)
+	v.Check(post.Author.ID > 0, "author", "invalid user id")
+	v.Check(*post.Title != "", "title", "must be provided")
+	v.Check(len(*post.Title) <= 500, "title", "must not be more than 500 bytes long")
+	v.Check(*post.Slug != "", "slug", "must be provided")
+	v.Check(*post.Preview != "", "preview", "must be provided")
+	v.Check(*post.Content != "", "content", "must be provided")
+	ValidatePostImageName(v, post.Image.Name)
 	v.Check(post.Status != "", "status", "must be provided")
 	v.Check(v.In(post.Status, postStatusChoices...), "status", "invalid status")
 	v.Check(post.Tags != nil, "tags", "must be provided")
@@ -87,7 +65,7 @@ func (model PostModel) Insert(post *Post) error {
 			VALUES ($1)
 			RETURNING id, created_at, updated_at, version`
 
-	args := []interface{}{post.UserID}
+	args := []interface{}{post.Author.ID}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&post.ID, &post.CreatedAt, &post.UpdatedAt, &post.Version)
@@ -107,14 +85,15 @@ func (model PostModel) GetByID(id int64) (*Post, error) {
 						id, user_id, title, preview, content, slug, image_name, tags, status, created_at, updated_at, deleted_at, version
 					FROM posts WHERE id=$1`
 
-	post := &Post{}
+	post := &Post{Author: &User{}}
 	m := pgtype.NewMap()
 	var tags []string
+	var image_name *string
 
 	args := []interface{}{id}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&post.ID, &post.UserID, &post.Title, &post.Preview, &post.Content, &post.Slug, &post.ImageName, m.SQLScanner(&tags), &post.Status, &post.CreatedAt, &post.UpdatedAt, &post.DeletedAt, &post.Version)
+	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&post.ID, &post.Author.ID, &post.Title, &post.Preview, &post.Content, &post.Slug, &image_name, m.SQLScanner(&tags), &post.Status, &post.CreatedAt, &post.UpdatedAt, &post.DeletedAt, &post.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -127,5 +106,31 @@ func (model PostModel) GetByID(id int64) (*Post, error) {
 
 	post.Tags = tags
 
+	if image_name != nil {
+		post.Image = &Image{Name: *image_name}
+	}
+
 	return post, nil
+}
+
+func (model PostModel) Update(post *Post) error {
+	SQL := `UPDATE posts
+						SET slug=$1, title=$2, preview=$3, content=$4, image_name=$5, status=$6, tags=$7, version=version + 1
+					WHERE id=$8 AND user_id=$9 AND version=$10
+					RETURNING version`
+
+	args := []interface{}{post.Slug, post.Title, post.Preview, post.Content, post.Image.Name, post.Status, post.Tags, post.ID, post.Author.ID, post.Version}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&post.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
