@@ -105,7 +105,7 @@ const PostMetadataForm = () => {
   }
 
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="image.name"
@@ -227,7 +227,7 @@ const PostMetadataForm = () => {
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 };
 

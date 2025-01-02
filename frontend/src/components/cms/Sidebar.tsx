@@ -24,7 +24,7 @@ export default function Sidebar({ className }: SidebarProps) {
      that this fixed element is initially relative, so it takes a "real space" */}
       <aside
         className={cn(
-          `fixed z-10 hidden h-screen flex-none border-r bg-card transition-[width] duration-500 md:block`,
+          `fixed z-10 h-full hidden flex-none border-r bg-card transition-[width] duration-500 md:block`,
           !isMinimized ? "w-72" : "w-[72px]",
           className
         )}

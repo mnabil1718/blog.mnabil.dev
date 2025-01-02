@@ -18,10 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={cn(
-          "min-h-screen bg-background font-mono antialiased",
-          mono.variable
-        )}
+        className={cn("bg-background font-mono antialiased", mono.variable)}
       >
         {children}
       </body>

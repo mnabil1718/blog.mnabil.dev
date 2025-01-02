@@ -43,7 +43,7 @@ const PostForm = ({ initData }: { initData: Post }) => {
     var status: string = "";
 
     if (action === POST_ACTION.SAVE) {
-      status = POST_STATUS.DRAFT;
+      status = initData.status ?? POST_STATUS.DRAFT;
     }
 
     if (action === POST_ACTION.PUBLISH) {
@@ -92,18 +92,15 @@ const PostForm = ({ initData }: { initData: Post }) => {
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={onSubmit}
-          // h-screen minus navbar height
-          className="min-h-[calc(100vh-64px)] flex flex-col"
-        >
+        <form onSubmit={onSubmit} className="bg-slate-100 p-3 space-y-2">
           <PostFormHeader />
-          <div className="relative flex-1 xl:flex bg-slate-100">
-            <div className="mx-auto max-w-screen-sm p-3">
+          <div className="grid grid-cols-1 xl:grid-cols-6 gap-2">
+            <div className="col-span-4 rounded-md overflow-hidden border">
               <PostEditorForm />
             </div>
-            <div className="hidden xl:block w-[420px] p-5 h-auto flex-none border-l border-border bg-background space-y-3">
-              <div className="space-y-4">
+
+            <div className="hidden xl:block col-span-2 overflow-hidden rounded-md border">
+              <div className="h-[calc(100vh-180px)] p-5 overflow-y-auto soft-scroll bg-white">
                 <PostMetadataForm />
               </div>
             </div>

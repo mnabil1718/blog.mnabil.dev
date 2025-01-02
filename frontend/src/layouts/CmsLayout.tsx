@@ -1,7 +1,11 @@
+import { AppSidebar } from "@/components/cms/AppSidebar";
 import Header from "@/components/cms/Header";
-import Sidebar from "@/components/cms/Sidebar";
 import { CsrfTokenProvider } from "@/components/CsrfContext";
-import ShowFlashMessage from "@/components/ShowFlashMessage";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { headers } from "next/headers";
 import React from "react";
@@ -15,14 +19,16 @@ export default function CmsLayout({
 
   return (
     <CsrfTokenProvider csrfToken={csrfToken}>
-      <div className="flex">
-        <Sidebar />
-        <main className="relative w-full">
-          <Header />
-          {children}
-        </main>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <main>
+            <Header />
+            {children}
+          </main>
+        </SidebarInset>
         <Toaster />
-      </div>
+      </SidebarProvider>
     </CsrfTokenProvider>
   );
 }

@@ -16,7 +16,6 @@ const PostEditorForm = () => {
     <FormField
       control={form.control}
       name="content"
-      defaultValue=""
       render={({ field }) => (
         <FormItem>
           <FormControl>

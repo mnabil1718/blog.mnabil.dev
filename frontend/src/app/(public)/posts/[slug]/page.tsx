@@ -17,7 +17,7 @@ const author = "Muhammad Nabil";
 
 export default function ShowPost({ params }: { params: { slug: string } }) {
   return (
-    <PublicLayout>
+    <>
       <section className="max-w-screen-sm mx-auto space-y-7 mb-7">
         <div className="flex flex-wrap gap-1">
           {sampleTags.map((tag, idx) => {
@@ -53,6 +53,6 @@ export default function ShowPost({ params }: { params: { slug: string } }) {
         </div>
       </section>
       <EditorReadOnly showTableOfContents />
-    </PublicLayout>
+    </>
   );
 }

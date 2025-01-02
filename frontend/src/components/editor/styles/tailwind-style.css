@@ -2,266 +2,259 @@
 @tailwind components;
 @tailwind utilities;
 
-  @layer base {
-
-    .toolbar-scroll::-webkit-scrollbar {
-      @apply h-1
-    }
-
-    .toolbar-scroll::-webkit-scrollbar-track {
-      @apply bg-slate-100
-    }
-
-    .toolbar-scroll::-webkit-scrollbar-thumb {
-      @apply bg-slate-300 rounded-full hover:bg-slate-400
-    }
-
-    .code-block {
-        @apply relative block max-w-full overflow-x-auto bg-[#1F1F1F] p-4 pl-14 leading-6 text-sm my-2 font-mono [tab-size:2] rounded-md text-[#9CDCFE] caret-white whitespace-nowrap
-    }
-
-    .code-block:before {
-        content: attr(data-gutter);
-        @apply absolute border border-r border-white/15 left-0 top-0 p-2 pt-4 text-white/30 whitespace-pre-wrap text-right min-w-7 h-full
-    }
-    
-    .PlaygroundEditorTheme__listItem {
-      @apply my-0 mx-8
-    }
-    
-    .PlaygroundEditorTheme__listItemChecked,
-    .PlaygroundEditorTheme__listItemUnchecked {
-      @apply relative mx-2 px-6 list-none outline-none
-    }
-
-    .PlaygroundEditorTheme__listItemChecked {
-      @apply line-through
-    }
-    .PlaygroundEditorTheme__listItemUnchecked:before,
-    .PlaygroundEditorTheme__listItemChecked:before {
-      @apply content-[''] w-4 h-4 top-0.5 left-0 cursor-pointer block bg-cover absolute
-    }
-
-    .PlaygroundEditorTheme__listItemUnchecked[dir='rtl']:before,
-    .PlaygroundEditorTheme__listItemChecked[dir='rtl']:before {
-      @apply left-auto right-0
-    }
-
-    .PlaygroundEditorTheme__listItemUnchecked:focus:before,
-    .PlaygroundEditorTheme__listItemChecked:focus:before {
-      @apply shadow-sm shadow-blue-300
-    }
-
-    .PlaygroundEditorTheme__listItemUnchecked:before {
-      @apply border rounded-sm
-    }
-    
-    .PlaygroundEditorTheme__listItemChecked:before {
-      @apply border border-blue-500 bg-blue-500 bg-no-repeat rounded-sm
-    }
-
-    .PlaygroundEditorTheme__listItemChecked:after {
-      @apply content-[''] cursor-pointer absolute block top-[6px] w-[3px] h-[6px] left-[7px] right-[7px] rotate-45 border-r-2 border-b-2 border-white 
-    }
-
-    .PlaygroundEditorTheme__nestedListItem {
-      @apply list-none
-    }
-
-    .PlaygroundEditorTheme__nestedListItem:before,
-    .PlaygroundEditorTheme__nestedListItem:after {
-      @apply hidden
-    }
-
-    .token-comment {
-      @apply text-[#6A9955];
-    }
-    .token-punctuation {
-      @apply text-[#CCCCCC];
-    }
-    .token-property {
-      @apply 	text-[#569CD6];
-    }
-    .token-selector {
-      @apply text-[#CE9178];
-    }
-    .token-operator {
-      @apply text-[#569CD6];
-    }
-    .token-attr {
-      @apply text-[#C586C0];
-    }
-    .token-variable {
-      @apply text-[#4FC1FF];
-    }
-    .token-function {
-      @apply text-[#DCDCAA];
-    }
-
-    .editor-shell span.editor-image {
-      @apply cursor-default inline-block relative select-none
-    }
-    
-    .editor-shell .editor-image img {
-      @apply max-w-full cursor-default block relative my-0 mx-auto
-    }
-    
-    .editor-shell .editor-image img.focused {
-      @apply select-none outline-2 outline outline-blue-500
-    }
-    
-    .editor-shell .editor-image img.focused.draggable {
-      cursor: grab;
-    }
-    
-    .editor-shell .editor-image img.focused.draggable:active {
-      cursor: grabbing;
-    }
-    
-    
-    .editor-shell .editor-image .image-caption-container {
-      @apply block absolute bottom-2 left-2 right-2 border border-white/30 bg-black/50 min-w-[100px] saturate-100 backdrop-blur-[2px] overflow-hidden text-white text-xs rounded-md
-    }
-    
-    .editor-shell .editor-image .image-caption-button {
-      @apply flex flex-wrap items-center gap-2 absolute bottom-5 inset-x-0 w-fit p-1 my-0 mx-auto border border-white/30 rounded-md bg-black/50 min-w-[100px] text-white text-xs cursor-pointer select-none
-    }
-    
-    .editor-shell .editor-image .image-caption-button:hover {
-      background-color: rgba(60, 132, 244, 0.5);
-    }
-    
-    .editor-shell .editor-image .image-edit-button {
-      border: 1px solid rgba(255, 255, 255, 1);
-      border-radius: 5px;
-      background-size: 16px;
-      background-position: center;
-      background-repeat: no-repeat;
-      width: 35px;
-      height: 35px;
-      vertical-align: -0.25em;
-      position: absolute;
-      right: 4px;
-      top: 4px;
-      cursor: pointer;
-      user-select: none;
-    }
-    
-    .editor-shell .editor-image .image-edit-button:hover {
-      background-color: rgba(60, 132, 244, 0.1);
-    }
-    
-    .editor-shell .editor-image .image-resizer {
-      display: block;
-      width: 7px;
-      height: 7px;
-      position: absolute;
-      background-color: rgb(60, 132, 244);
-      border: 1px solid #fff;
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-n {
-      @apply top-[-6px] left-[48%] cursor-n-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-ne {
-      @apply top-[-6px] right-[-6px] cursor-ne-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-e {
-      @apply bottom-[48%] right-[-6px] cursor-e-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-se {
-      @apply bottom-[-6px] right-[-6px] cursor-nwse-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-s {
-      @apply bottom-[-6px] left-[48%] cursor-s-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-sw {
-      @apply bottom-[-6px] left-[-6px] cursor-sw-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-w {
-      @apply bottom-[48%] left-[-6px] cursor-w-resize
-    }
-    
-    .editor-shell .editor-image .image-resizer.image-resizer-nw {
-      @apply top-[-6px] left-[-6px] cursor-nw-resize
-    }
-
-    .image-control-wrapper--resizing {
-      @apply touch-none
-    }
-
-    .ImageNode__placeholder {
-      @apply text-xs text-white/50 overflow-hidden absolute top-2 left-2 select-none whitespace-nowrap inline-block pointer-events-none
-    }
-
-    .ImageNode__contentEditable {
-      @apply min-h-7 p-2 resize-none cursor-text caret-white block relative outline-0 select-text text-xs w-full whitespace-pre-wrap break-words
-    }
-
-    .ContentEditable__root {
-      @apply text-xs block relative outline-0 border-0
-    }
-
-    /* ================ TABLE OF CONTENT =============== */
-
-    .table-of-contents .heading2 {
-      @apply ml-[0px]
-    }
-
-    .table-of-contents .heading3 {
-      @apply ml-[10px]
-    }
-
-    .table-of-contents .heading4 {
-      @apply ml-[20px]
-    }
-
-    .normal-heading {
-      @apply cursor-pointer text-xs font-semibold my-3
-    }
-
-    .headings {
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
-      @apply list-none m-0 p-0 overflow-scroll w-80 max-h-96 overflow-x-hidden overflow-y-auto
-    }
-
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .headings::-webkit-scrollbar {
-      @apply hidden
-    }
-
-    .normal-heading-wrapper {
-      @apply relative
-    }
-
-
-    /* ================ DRAGGABLE BLOCK =============== */
-
-    .draggable-block-menu {
-      @apply absolute left-0 top-0 cursor-grab opacity-0 px-0.5 py-1 rounded-sm
-    } 
-    
-    .draggable-block-menu:active {
-      @apply cursor-grabbing;
-    }
-    
-    .draggable-block-menu:hover {
-      @apply bg-slate-100
-
-    }
-    
-    .draggable-block-target-line {
-      will-change: transform;
-      @apply pointer-events-none h-1 absolute left-0 top-0 opacity-0 bg-sky-400
-    }
-        
-
-
+@layer base {
+  .toolbar-scroll::-webkit-scrollbar {
+    @apply h-1;
   }
+
+  .toolbar-scroll::-webkit-scrollbar-track {
+    @apply bg-slate-50;
+  }
+
+  .toolbar-scroll::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full hover:bg-slate-400;
+  }
+
+  .code-block {
+    @apply relative block max-w-full overflow-x-auto bg-[#1F1F1F] p-4 pl-14 leading-6 text-sm my-2 font-mono [tab-size:2] rounded-md text-[#9CDCFE] caret-white whitespace-nowrap;
+  }
+
+  .code-block:before {
+    content: attr(data-gutter);
+    @apply absolute border border-r border-white/15 left-0 top-0 p-2 pt-4 text-white/30 whitespace-pre-wrap text-right min-w-7 h-full;
+  }
+
+  .PlaygroundEditorTheme__listItem {
+    @apply my-0 mx-8;
+  }
+
+  .PlaygroundEditorTheme__listItemChecked,
+  .PlaygroundEditorTheme__listItemUnchecked {
+    @apply relative mx-2 px-6 list-none outline-none;
+  }
+
+  .PlaygroundEditorTheme__listItemChecked {
+    @apply line-through;
+  }
+  .PlaygroundEditorTheme__listItemUnchecked:before,
+  .PlaygroundEditorTheme__listItemChecked:before {
+    @apply content-[''] w-4 h-4 top-0.5 left-0 cursor-pointer block bg-cover absolute;
+  }
+
+  .PlaygroundEditorTheme__listItemUnchecked[dir="rtl"]:before,
+  .PlaygroundEditorTheme__listItemChecked[dir="rtl"]:before {
+    @apply left-auto right-0;
+  }
+
+  .PlaygroundEditorTheme__listItemUnchecked:focus:before,
+  .PlaygroundEditorTheme__listItemChecked:focus:before {
+    @apply shadow-sm shadow-blue-300;
+  }
+
+  .PlaygroundEditorTheme__listItemUnchecked:before {
+    @apply border rounded-sm;
+  }
+
+  .PlaygroundEditorTheme__listItemChecked:before {
+    @apply border border-blue-500 bg-blue-500 bg-no-repeat rounded-sm;
+  }
+
+  .PlaygroundEditorTheme__listItemChecked:after {
+    @apply content-[''] cursor-pointer absolute block top-[6px] w-[3px] h-[6px] left-[7px] right-[7px] rotate-45 border-r-2 border-b-2 border-white;
+  }
+
+  .PlaygroundEditorTheme__nestedListItem {
+    @apply list-none;
+  }
+
+  .PlaygroundEditorTheme__nestedListItem:before,
+  .PlaygroundEditorTheme__nestedListItem:after {
+    @apply hidden;
+  }
+
+  .token-comment {
+    @apply text-[#6A9955];
+  }
+  .token-punctuation {
+    @apply text-[#CCCCCC];
+  }
+  .token-property {
+    @apply text-[#569CD6];
+  }
+  .token-selector {
+    @apply text-[#CE9178];
+  }
+  .token-operator {
+    @apply text-[#569CD6];
+  }
+  .token-attr {
+    @apply text-[#C586C0];
+  }
+  .token-variable {
+    @apply text-[#4FC1FF];
+  }
+  .token-function {
+    @apply text-[#DCDCAA];
+  }
+
+  .editor-shell span.editor-image {
+    @apply cursor-default inline-block relative select-none;
+  }
+
+  .editor-shell .editor-image img {
+    @apply max-w-full cursor-default block relative my-0 mx-auto;
+  }
+
+  .editor-shell .editor-image img.focused {
+    @apply select-none outline-2 outline outline-blue-500;
+  }
+
+  .editor-shell .editor-image img.focused.draggable {
+    cursor: grab;
+  }
+
+  .editor-shell .editor-image img.focused.draggable:active {
+    cursor: grabbing;
+  }
+
+  .editor-shell .editor-image .image-caption-container {
+    @apply block absolute bottom-2 left-2 right-2 border border-white/30 bg-black/50 min-w-[100px] saturate-100 backdrop-blur-[2px] overflow-hidden text-white text-xs rounded-md;
+  }
+
+  .editor-shell .editor-image .image-caption-button {
+    @apply flex flex-wrap items-center gap-2 absolute bottom-5 inset-x-0 w-fit p-1 my-0 mx-auto border border-white/30 rounded-md bg-black/50 min-w-[100px] text-white text-xs cursor-pointer select-none;
+  }
+
+  .editor-shell .editor-image .image-caption-button:hover {
+    background-color: rgba(60, 132, 244, 0.5);
+  }
+
+  .editor-shell .editor-image .image-edit-button {
+    border: 1px solid rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    background-size: 16px;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 35px;
+    height: 35px;
+    vertical-align: -0.25em;
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .editor-shell .editor-image .image-edit-button:hover {
+    background-color: rgba(60, 132, 244, 0.1);
+  }
+
+  .editor-shell .editor-image .image-resizer {
+    display: block;
+    width: 7px;
+    height: 7px;
+    position: absolute;
+    background-color: rgb(60, 132, 244);
+    border: 1px solid #fff;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-n {
+    @apply top-[-6px] left-[48%] cursor-n-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-ne {
+    @apply top-[-6px] right-[-6px] cursor-ne-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-e {
+    @apply bottom-[48%] right-[-6px] cursor-e-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-se {
+    @apply bottom-[-6px] right-[-6px] cursor-nwse-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-s {
+    @apply bottom-[-6px] left-[48%] cursor-s-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-sw {
+    @apply bottom-[-6px] left-[-6px] cursor-sw-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-w {
+    @apply bottom-[48%] left-[-6px] cursor-w-resize;
+  }
+
+  .editor-shell .editor-image .image-resizer.image-resizer-nw {
+    @apply top-[-6px] left-[-6px] cursor-nw-resize;
+  }
+
+  .image-control-wrapper--resizing {
+    @apply touch-none;
+  }
+
+  .ImageNode__placeholder {
+    @apply text-xs text-white/50 overflow-hidden absolute top-2 left-2 select-none whitespace-nowrap inline-block pointer-events-none;
+  }
+
+  .ImageNode__contentEditable {
+    @apply min-h-7 p-2 resize-none cursor-text caret-white block relative outline-0 select-text text-xs w-full whitespace-pre-wrap break-words;
+  }
+
+  .ContentEditable__root {
+    @apply text-xs block relative outline-0 border-0;
+  }
+
+  /* ================ TABLE OF CONTENT =============== */
+
+  .table-of-contents .heading2 {
+    @apply ml-[0px];
+  }
+
+  .table-of-contents .heading3 {
+    @apply ml-[10px];
+  }
+
+  .table-of-contents .heading4 {
+    @apply ml-[20px];
+  }
+
+  .normal-heading {
+    @apply cursor-pointer text-xs font-semibold my-3;
+  }
+
+  .headings {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    @apply list-none m-0 p-0 overflow-scroll w-80 max-h-96 overflow-x-hidden overflow-y-auto;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .headings::-webkit-scrollbar {
+    @apply hidden;
+  }
+
+  .normal-heading-wrapper {
+    @apply relative;
+  }
+
+  /* ================ DRAGGABLE BLOCK =============== */
+
+  .draggable-block-menu {
+    @apply absolute left-0 top-0 cursor-grab opacity-0 px-0.5 py-1 rounded-sm;
+  }
+
+  .draggable-block-menu:active {
+    @apply cursor-grabbing;
+  }
+
+  .draggable-block-menu:hover {
+    @apply bg-slate-100;
+  }
+
+  .draggable-block-target-line {
+    will-change: transform;
+    @apply pointer-events-none h-1 absolute left-0 top-0 opacity-0 bg-sky-400;
+  }
+}

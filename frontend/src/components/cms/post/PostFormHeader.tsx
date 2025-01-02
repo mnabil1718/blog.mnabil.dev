@@ -17,7 +17,7 @@ const PostFormHeader = () => {
   const form = useFormContext<PostSchemaType>();
 
   return (
-    <div className="relative p-5 w-full flex items-start gap-3 border-b border-border bg-background/80 saturate-100 backdrop-blur-[10px]">
+    <div className="relative p-5 w-full flex items-start gap-3 bg-background rounded-md border">
       <FormField
         control={form.control}
         name="title"
@@ -48,7 +48,7 @@ const PostFormHeader = () => {
         value={POST_ACTION.SAVE}
         variant={"outline"}
         className="flex items-center gap-2"
-        disabled={form.formState.isSubmitting || !form.formState.isValid}
+        disabled={form.formState.isSubmitting}
       >
         <Save size={14} />
         <span className="hidden md:block">Save</span>
@@ -60,7 +60,7 @@ const PostFormHeader = () => {
         name="action"
         value={POST_ACTION.PUBLISH}
         className="flex items-center gap-2"
-        disabled={form.formState.isSubmitting || !form.formState.isValid}
+        disabled={form.formState.isSubmitting}
       >
         <Send size={14} />
         <span className="hidden md:block">Publish</span>
