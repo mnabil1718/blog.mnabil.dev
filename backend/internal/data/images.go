@@ -26,7 +26,7 @@ type Image struct {
 	URL       string    `json:"url,omitempty"` // will always be empty from DB, remember to set in handlers
 	IsTemp    bool      `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-	CreatedAt time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
 	Version   int32     `json:"-"`
 }
 

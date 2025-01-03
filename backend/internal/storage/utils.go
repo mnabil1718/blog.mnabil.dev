@@ -25,8 +25,6 @@ var (
 	ErrInvalidImage      = errors.New("invalid image dimensions")
 	ErrValidation        = errors.New("image validation failed")
 	ErrSystem            = errors.New("system error")
-	ErrFileNotFound      = errors.New("file does not exist")
-	ErrDirectoryNotFound = errors.New("directory does not exist")
 	ErrFileMove          = errors.New("failed to move file")
 )
 

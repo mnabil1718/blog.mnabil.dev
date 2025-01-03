@@ -121,7 +121,6 @@ func (app *application) getPostByIDHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
-
 	id, err := app.getIdFromRequestContext(r)
 	if err != nil || id < 1 {
 		app.notFoundResponse(w, r)
@@ -149,6 +148,7 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 	v := validator.New()
 
 	if updatePostRequest.Image != nil {
+
 		image, err := app.models.Images.GetByName(updatePostRequest.Image.Name)
 		if err != nil {
 			switch {
@@ -163,6 +163,7 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 		image.Alt = updatePostRequest.Image.Alt
 		image.IsTemp = false
 		image.UpdatedAt = time.Now()
+		image.URL = app.generateImageURL(image.Name)
 
 		if data.ValidateImage(v, image); !v.Valid() {
 			app.failedValidationResponse(w, r, v.Errors)
@@ -170,8 +171,10 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 		}
 
 		if image.IsTemp {
+
 			origin := filepath.Join(app.config.Upload.TempPath, image.FileName)
 			destination := filepath.Join(app.config.Upload.Path, image.FileName)
+
 			err = app.storage.Move(origin, destination)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
@@ -191,6 +194,28 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 		}
 
 		post.Image = image
+	} else {
+		if post.Image != nil && post.Image.Name != "" {
+			image, err := app.models.Images.GetByName(post.Image.Name)
+			if err != nil {
+				switch {
+				case errors.Is(err, data.ErrRecordNotFound):
+					app.notFoundResponse(w, r)
+				default:
+					app.serverErrorResponse(w, r, err)
+				}
+				return
+			}
+
+			image.URL = app.generateImageURL(image.Name)
+
+			if data.ValidateImage(v, image); !v.Valid() {
+				app.failedValidationResponse(w, r, v.Errors)
+				return
+			}
+
+			post.Image = image
+		}
 	}
 
 	if updatePostRequest.Slug != nil {
@@ -228,6 +253,8 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 	// author otherwise update error
 	user := app.contextGetUser(r)
 	post.Author.ID = user.ID
+	post.Author.Name = user.Name
+	post.Author.Email = user.Email
 
 	err = app.models.Posts.Update(post)
 	if err != nil {
@@ -247,4 +274,5 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+
 }

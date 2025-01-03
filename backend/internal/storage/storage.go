@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -90,21 +91,49 @@ func (s *ImageStorage) Save(file multipart.File, fileHeader multipart.FileHeader
 	return image, nil
 }
 
-func (s *ImageStorage) Move(currentPath string, newPath string) error {
-	// Step 1: Ensure the source file exists
-	if _, err := os.Stat(currentPath); os.IsNotExist(err) {
-		return ErrFileNotFound
+func (s *ImageStorage) Move(source, destination string) error {
+	// Open the source file
+	src, err := os.Open(source)
+	if err != nil {
+		return ErrSystem
+	}
+	defer src.Close()
+
+	// Get file information for permissions
+	fi, err := src.Stat()
+	if err != nil {
+		return ErrSystem
 	}
 
-	// Step 2: Ensure the destination directory exists
-	destinationDir := filepath.Dir(newPath)
-	if _, err := os.Stat(destinationDir); os.IsNotExist(err) {
-		return ErrDirectoryNotFound
+	// Prepare the destination file
+	flag := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	perm := fi.Mode() & os.ModePerm
+	dst, err := os.OpenFile(destination, flag, perm)
+	if err != nil {
+		return ErrSystem
 	}
 
-	// Step 3: Move the file
-	if err := os.Rename(currentPath, newPath); err != nil {
+	// Copy data from source to destination
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		dst.Close()
+		os.Remove(destination)
 		return ErrFileMove
+	}
+
+	// Close the destination file explicitly
+	if err := dst.Close(); err != nil {
+		return ErrSystem
+	}
+
+	// Ensure the source file is closed
+	if err := src.Close(); err != nil {
+		return ErrSystem
+	}
+
+	// Remove the source file
+	if err := os.Remove(source); err != nil {
+		return ErrSystem
 	}
 
 	return nil

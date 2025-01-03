@@ -25,8 +25,8 @@ type Post struct {
 	Status    string       `json:"status,omitempty"`
 	Tags      []string     `json:"tags"`
 	Image     *Image       `json:"image,omitempty"`
-	UpdatedAt time.Time    `json:"updated_at,omitempty"`
-	CreatedAt time.Time    `json:"created_at,omitempty"`
+	UpdatedAt time.Time    `json:"updated_at"`
+	CreatedAt time.Time    `json:"created_at"`
 	DeletedAt sql.NullTime `json:"-"`
 	Version   int32        `json:"-"`
 }

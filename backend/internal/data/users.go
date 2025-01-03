@@ -17,13 +17,13 @@ var (
 )
 
 type User struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name,omitempty"`
-	Email     string    `json:"email,omitempty"`
-	Activated bool      `json:"activated,omitempty"`
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	Password  password  `json:"-"`
-	Version   int32     `json:"-"`
+	ID        int64      `json:"id"`
+	Name      string     `json:"name,omitempty"`
+	Email     string     `json:"email,omitempty"`
+	Activated bool       `json:"activated,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Password  password   `json:"-"`
+	Version   int32      `json:"-"`
 }
 
 var AnonymousUser = &User{}
@@ -216,13 +216,14 @@ func (model MockUserModel) Insert(user *User) error {
 }
 
 func (model MockUserModel) GetByEmail(email string) (*User, error) {
+	now := time.Now()
 	user := &User{
 		ID:        1,
 		Name:      "Elole Kusk",
 		Email:     "elole@gmail.com",
 		Activated: true,
 		Version:   1,
-		CreatedAt: time.Now(),
+		CreatedAt: &now,
 	}
 
 	return user, nil
@@ -233,13 +234,14 @@ func (model MockUserModel) Update(user *User) error {
 }
 
 func (model MockUserModel) GetForToken(scope string, tokenPlainText string) (*User, error) {
+	now := time.Now()
 	user := &User{
 		ID:        1,
 		Name:      "Elole Kusk",
 		Email:     "elole@gmail.com",
 		Activated: true,
 		Version:   1,
-		CreatedAt: time.Now(),
+		CreatedAt: &now,
 	}
 	return user, nil
 }
