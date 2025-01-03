@@ -30,8 +30,8 @@ const PostListTile = ({ post }: { post: Post }) => {
       <div className="p-4 rounded-lg border border-border flex gap-4">
         <div className="relative w-36 aspect-square lg:w-56 lg:aspect-video bg-gray-400 rounded-lg overflow-hidden flex-none">
           <Image
-            src={post.image_url}
-            alt={post.title}
+            src={post.image?.url ?? ""}
+            alt={post.title ?? ""}
             fill
             className="w-full object-cover"
           />

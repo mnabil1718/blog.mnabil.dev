@@ -12,8 +12,13 @@ export const posts: Post[] = [
     slug: "my-first-programming-post",
     preview:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    image_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Cat_August_2010-4.jpg/1280px-Cat_August_2010-4.jpg",
+    image: {
+      id: 1,
+      name: "margaret",
+      alt: "kurwa",
+      file_name: "kurwa",
+      url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Cat_August_2010-4.jpg/1280px-Cat_August_2010-4.jpg",
+    },
     content: "Sample Content",
     status: "published",
     tags: ["next-js", "programming"],
@@ -30,8 +35,13 @@ export const posts: Post[] = [
     slug: "my-second-programming-post",
     preview:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    image_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Gustav_chocolate.jpg/800px-Gustav_chocolate.jpg",
+    image: {
+      id: 2,
+      name: "margaret",
+      alt: "kurwa",
+      file_name: "kurwa",
+      url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Gustav_chocolate.jpg/800px-Gustav_chocolate.jpg",
+    },
     content: "Sample Content",
     status: "draft",
     tags: ["algorithm", "go", "programming"],
@@ -48,8 +58,13 @@ export const posts: Post[] = [
     slug: "my-third-programming-post",
     preview:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    image_url:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Felis_catus-cat_on_snow.jpg/1280px-Felis_catus-cat_on_snow.jpg",
+    image: {
+      id: 2,
+      name: "margaret",
+      alt: "kurwa",
+      file_name: "kurwa",
+      url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Felis_catus-cat_on_snow.jpg/1280px-Felis_catus-cat_on_snow.jpg",
+    },
     content: "Sample Content",
     status: "archived",
     tags: ["algorithm", "go", "programming", "node-js", "react-js"],

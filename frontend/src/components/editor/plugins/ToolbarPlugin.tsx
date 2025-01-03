@@ -334,7 +334,7 @@ export default function ToolbarPlugin({
 
   return (
     <div
-      className="flex overflow-x-auto gap-1 items-center p-3 border-b h-30 bg-background/80 saturate-100 backdrop-blur-[10px] toolbar-scroll"
+      className="flex overflow-x-auto gap-1 items-center p-3 border-b h-30 bg-background/80 saturate-100 backdrop-blur-[10px] soft-scroll"
       ref={toolbarRef}
     >
       {/* UNDO & REDO */}

@@ -15,6 +15,7 @@ import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
+import CodeActionMenuPlugin from "./plugins/CodeActionMenuPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
@@ -31,7 +32,6 @@ import "./styles/tailwind-style.css";
 
 import { CAN_USE_DOM } from "./utils/canUseDOM";
 import FloatingLinkEditorPlugin from "./plugins/FloatingLinkEditorPlugin";
-import CodeActionMenuPlugin from "./plugins/CodeActionMenuPlugin";
 import DragDropPaste from "./plugins/DragDropPaste";
 import ImagesPlugin from "./plugins/ImagesPlugin";
 import { ImageNode } from "./nodes/ImageNode";
@@ -55,10 +55,12 @@ const ContentEditableWrapper = ({
   onRef: (_floatingAnchorElem: HTMLDivElement) => void;
 }) => {
   return (
-    <div className="min-h-[450px] border-none flex relative outline-none z-0 overflow-y-auto">
-      <div ref={onRef} className="flex-auto relative z-[-1] h-full">
+    <div className="min-h-[450px] flex relative outline-none z-0 overflow-auto soft-scroll">
+      <div ref={onRef} className="flex-auto relative z-[-1]">
+        {/* override prose max width to fill parent container 
+        see : https://github.com/tailwindlabs/tailwindcss-typography#overriding-max-width */}
         <ContentEditable
-          className="editor-shell relative max-h-[450px] prose prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-7"
+          className="editor-shell relative max-h-[450px] prose max-w-none prose-sm resize-none caret-foreground [tab-size:1] outline-none py-4 px-7"
           aria-placeholder={placeholder}
         />
       </div>
@@ -128,12 +130,7 @@ const Editor = React.forwardRef((props: EditorProps, ref: any) => {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div
-        className={cn(
-          "relative h-full rounded-md overflow-hidden",
-          props.className
-        )}
-      >
+      <div className={cn("relative h-full rounded-md", props.className)}>
         <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
         <div className="relative bg-white">
           <RichTextPlugin

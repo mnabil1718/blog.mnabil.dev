@@ -12,18 +12,28 @@ export async function updatePostAction(id: number, formData: FormData) {
   try {
     const session = await getSession();
 
-    const body = {
+    const tags = formData.getAll("tags[]") as string[];
+    const img_name = formData.get("image_name") as string;
+    const img_alt = formData.get("image_alt") as string;
+
+    const body: Record<string, any> = {
       title: formData.get("title") as string,
       slug: formData.get("slug") as string,
       preview: formData.get("preview") as string,
       content: formData.get("content") as string,
-      image: {
-        name: formData.get("image_name") as string,
-        alt: formData.get("image_alt") as string,
-      },
       status: formData.get("status") as string,
-      tags: formData.getAll("tags[]") as string[],
     };
+
+    if (img_name && img_alt) {
+      body.image = {
+        name: img_name,
+        alt: img_alt,
+      };
+    }
+
+    if (tags.length > 0) {
+      body.tags = tags;
+    }
 
     const res = await axios.patch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/${id}`,

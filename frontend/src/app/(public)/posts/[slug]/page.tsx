@@ -1,7 +1,6 @@
-import PublicLayout from "@/layouts/PublicLayout";
 import Image from "next/image";
 import React from "react";
-import PostThumb from "../../../../public/images/post-thumb.jpg";
+import PostThumb from "../../../../../public/images/post-thumb.jpg";
 import PostTitle from "@/components/post/PostTitle";
 import Tag from "@/components/Tag";
 import { Dot } from "lucide-react";

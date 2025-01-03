@@ -31,6 +31,7 @@ import { showErrorToast } from "@/utils/show-toasts";
 import { useToast } from "@/components/ui/use-toast";
 import { ActionResponse } from "@/types/action-response";
 import { Separator } from "@/components/ui/separator";
+import TooltipWrapper from "@/components/TooltipWrapper";
 
 async function fetchTags(query: string): Promise<string[]> {
   return dummyTags.filter((tag) => tag.includes(query));
@@ -150,23 +151,16 @@ const PostMetadataForm = () => {
             <FormLabel>Slug</FormLabel>
             <FormControl>
               <div className="relative">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={"ghost"}
-                        type="button"
-                        className="absolute right-0"
-                        onClick={handleGenerateSlugOnClick}
-                      >
-                        <RotateCcwIcon size={14} />{" "}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="hidden lg:block bg-foreground text-xs text-background">
-                      Generate from title
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <TooltipWrapper content="Generate from title">
+                  <Button
+                    variant={"ghost"}
+                    type="button"
+                    className="absolute right-0"
+                    onClick={handleGenerateSlugOnClick}
+                  >
+                    <RotateCcwIcon size={14} />{" "}
+                  </Button>
+                </TooltipWrapper>
 
                 <Input
                   type="text"

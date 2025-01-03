@@ -7,4 +7,5 @@ export enum POST_STATUS {
 export enum POST_ACTION {
   SAVE = "saved",
   PUBLISH = "published",
+  UNPUBLISH = "unpublished",
 }

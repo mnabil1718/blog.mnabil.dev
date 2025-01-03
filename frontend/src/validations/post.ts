@@ -30,6 +30,7 @@ export const postSchema = z.object({
     .refine((tags) => new Set(tags).size === tags.length, {
       message: "tags must be unique",
     }),
+  status: z.string(),
 });
 
 export type PostSchemaType = z.infer<typeof postSchema>;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useTransition } from "react";
 import { Form } from "@/components/ui/form";
 import { FormProvider, useForm } from "react-hook-form";
 import { postSchema, PostSchemaType } from "@/validations/post";
@@ -14,10 +14,12 @@ import { showErrorToast, showSuccessToast } from "@/utils/show-toasts";
 import { useToast } from "@/components/ui/use-toast";
 import { POST_ACTION, POST_STATUS } from "@/constants/post";
 import { Post } from "@/types/post";
+import { useRouter } from "next/navigation";
 
 const PostForm = ({ initData }: { initData: Post }) => {
   const { toast } = useToast();
   const csrfToken = useCsrfToken();
+  const router = useRouter();
   const form = useForm<PostSchemaType>({
     resolver: zodResolver(postSchema),
     mode: "onSubmit",
@@ -32,6 +34,7 @@ const PostForm = ({ initData }: { initData: Post }) => {
         url: initData.image?.url ?? "",
       },
       tags: initData.tags ?? [],
+      status: initData.status ?? "",
     },
   });
 
@@ -50,11 +53,7 @@ const PostForm = ({ initData }: { initData: Post }) => {
       status = POST_STATUS.PUBLISHED;
     }
 
-    if (status === "") {
-      showErrorToast(toast, "Cannot read post action");
-    }
-
-    const formData = objectToFormData({
+    var formData: FormData = objectToFormData({
       title: data.title,
       slug: data.slug,
       preview: data.preview,
@@ -65,6 +64,19 @@ const PostForm = ({ initData }: { initData: Post }) => {
       status: status,
       csrf_token: csrfToken,
     });
+
+    if (action === POST_ACTION.UNPUBLISH) {
+      status = POST_STATUS.DRAFT;
+      formData = objectToFormData({
+        status: status,
+        csrf_token: csrfToken,
+      });
+    }
+
+    if (status === "") {
+      showErrorToast(toast, "Cannot read post action");
+      return;
+    }
 
     const updatePostWithID = updatePostAction.bind(null, initData.id);
     const response = await updatePostWithID(formData);
@@ -86,13 +98,20 @@ const PostForm = ({ initData }: { initData: Post }) => {
       return;
     }
 
+    // reset form default values to newly updated post
+    form.reset(response.post);
+
     showSuccessToast(toast, `Post ${action} successfully`);
   });
 
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form onSubmit={onSubmit} className="bg-slate-100 p-3 space-y-2">
+        <form
+          id="post-form"
+          onSubmit={onSubmit}
+          className="bg-slate-100 p-3 space-y-2"
+        >
           <PostFormHeader />
           <div className="grid grid-cols-1 xl:grid-cols-6 gap-2">
             <div className="col-span-4 rounded-md overflow-hidden border">

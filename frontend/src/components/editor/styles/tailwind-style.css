@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 @layer base {
-  .toolbar-scroll::-webkit-scrollbar {
-    @apply h-1;
+  .soft-scroll::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
   }
 
-  .toolbar-scroll::-webkit-scrollbar-track {
+  .soft-scroll::-webkit-scrollbar-track {
     @apply bg-slate-50;
   }
 
-  .toolbar-scroll::-webkit-scrollbar-thumb {
+  .soft-scroll::-webkit-scrollbar-thumb {
     @apply bg-slate-200 rounded-full hover:bg-slate-400;
   }
 
   .code-block {
-    @apply relative block max-w-full overflow-x-auto bg-[#1F1F1F] p-4 pl-14 leading-6 text-sm my-2 font-mono [tab-size:2] rounded-md text-[#9CDCFE] caret-white whitespace-nowrap;
+    @apply relative block max-w-full overflow-x-auto bg-[#1F1F1F] p-4 pl-14 leading-6 text-sm my-2 font-mono [tab-size:2] rounded-md text-[#9CDCFE] caret-white;
   }
 
   .code-block:before {

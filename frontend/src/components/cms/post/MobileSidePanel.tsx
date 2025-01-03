@@ -1,7 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import PostMetadataForm from "./PostMetadataForm";
@@ -18,19 +27,23 @@ export function MobileSidePanel() {
           </Button>
         </SheetTrigger>
         <SheetContent
-          side="right"
-          className="!px-2 h-screen overflow-y-auto soft-scroll"
+          className="h-screen overflow-y-auto soft-scroll"
+          side={"right"}
         >
-          <div className="space-y-4 py-4">
-            <div className="px-3 py-2">
-              <h2 className="mb-2 text-lg font-semibold tracking-tight">
-                Metadata
-              </h2>
-              <div className="space-y-1">
-                <PostMetadataForm />
-              </div>
-            </div>
+          <SheetHeader>
+            <SheetTitle>Post Metadata</SheetTitle>
+            <SheetDescription>
+              Specify your post&apos;s metadata
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-1 py-4">
+            <PostMetadataForm />
           </div>
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button type="button">Done</Button>
+            </SheetClose>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
     </>

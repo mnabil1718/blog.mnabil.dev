@@ -26,7 +26,7 @@ export default function Error({
   };
 
   return (
-    <div className="flex items-center justify-center h-full text-center">
+    <div className="flex items-center justify-center h-full text-center border">
       <div className="space-y-6">
         <div>
           <h1 className="text-4xl md:text-7xl font-bold">500</h1>
