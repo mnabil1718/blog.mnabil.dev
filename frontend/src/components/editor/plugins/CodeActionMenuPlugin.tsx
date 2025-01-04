@@ -28,7 +28,6 @@ function CodeActionMenuContainer({
   anchorElem: HTMLElement;
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
-
   const [lang, setLang] = useState("");
   const [isShown, setIsShown] = useState<boolean>(false);
   const [shouldListenMouseMove, setShouldListenMouseMove] =
@@ -100,6 +99,24 @@ function CodeActionMenuContainer({
     };
   }, [shouldListenMouseMove, debouncedOnMouseMove]);
 
+  // BEWARE: THIS CODE IS AI GENERATED. ANY ERROR CAUSED
+  // BY THIS COMPONENT CAN BE BLAMED TO THIS USE-EFFECT
+  useEffect(() => {
+    editor.update(() => {
+      const rootElement = editor.getRootElement();
+      if (rootElement) {
+        const codeNodes = rootElement.querySelectorAll("code");
+        codeNodes.forEach((codeNode) => {
+          const nearestNode = $getNearestNodeFromDOMNode(codeNode);
+          if ($isCodeNode(nearestNode)) {
+            codeSetRef.current.add(nearestNode.getKey());
+          }
+        });
+        setShouldListenMouseMove(codeSetRef.current.size > 0);
+      }
+    });
+  }, [editor]);
+
   editor.registerMutationListener(CodeNode, (mutations) => {
     editor.getEditorState().read(() => {
       for (const [key, type] of mutations) {
@@ -120,6 +137,7 @@ function CodeActionMenuContainer({
       }
     });
   });
+
   const normalizedLang = normalizeCodeLang(lang);
   const codeFriendlyName = getLanguageFriendlyName(lang);
 

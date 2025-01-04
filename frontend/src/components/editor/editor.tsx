@@ -96,7 +96,7 @@ const Editor = React.forwardRef((props: EditorProps, ref: any) => {
       throw error;
     },
     theme: DefaultTheme,
-    editorState: props.initState ? props.initState : EMPTY_STATE,
+    editorState: props.initState ?? EMPTY_STATE,
   };
 
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
