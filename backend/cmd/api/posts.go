@@ -160,16 +160,6 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		image.Alt = updatePostRequest.Image.Alt
-		image.IsTemp = false
-		image.UpdatedAt = time.Now()
-		image.URL = app.generateImageURL(image.Name)
-
-		if data.ValidateImage(v, image); !v.Valid() {
-			app.failedValidationResponse(w, r, v.Errors)
-			return
-		}
-
 		if image.IsTemp {
 
 			origin := filepath.Join(app.config.Upload.TempPath, image.FileName)
@@ -180,6 +170,16 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 				app.serverErrorResponse(w, r, err)
 				return
 			}
+		}
+
+		image.Alt = updatePostRequest.Image.Alt
+		image.IsTemp = false
+		image.UpdatedAt = time.Now()
+		image.URL = app.generateImageURL(image.Name)
+
+		if data.ValidateImage(v, image); !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
 		}
 
 		err = app.models.Images.Update(image)

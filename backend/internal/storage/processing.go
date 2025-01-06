@@ -58,6 +58,7 @@ func ValidateImageProcessingOption(v *validator.Validator, opts *ImageProcessing
 }
 
 func ProcessImage(path string, opts *ImageProcessingOption) (image.Image, error) {
+
 	img, err := imaging.Open(path)
 	if err != nil {
 		return nil, ErrOpenImage
