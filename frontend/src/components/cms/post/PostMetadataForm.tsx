@@ -120,7 +120,11 @@ const PostMetadataForm = () => {
                   accept=".jpg,.jpeg,.png,.webp"
                   dropMessage="Drop file or click here"
                   handleOnDrop={handleOnDrop}
-                  previewURL={form.watch("image.url")}
+                  previewURL={
+                    form.watch("image.url") != ""
+                      ? form.watch("image.url") + "?h=120"
+                      : ""
+                  }
                   classNameWrapper="relative h-32"
                 />
               </>

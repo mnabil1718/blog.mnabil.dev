@@ -25,7 +25,7 @@ export const sideNavData = {
       title: "Posts",
       url: "/panel/posts",
       icon: PenLine,
-      isActive: true,
+      isActive: false,
     },
     {
       title: "Models",
