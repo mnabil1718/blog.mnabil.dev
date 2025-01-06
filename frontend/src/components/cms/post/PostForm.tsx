@@ -102,6 +102,8 @@ const PostForm = ({ initData }: { initData: Post }) => {
     form.reset(response.post);
 
     showSuccessToast(toast, `Post ${action} successfully`);
+
+    router.refresh();
   });
 
   return (

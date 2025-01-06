@@ -13,7 +13,8 @@ export type Post = {
   image?: Image;
   status: "draft" | "published" | "archived";
   tags: string[];
-  updated_at: string; // time
+  updated_at?: string; // time
+  created_at?: string;
 };
 
 // This type is used to define the shape of our data.
