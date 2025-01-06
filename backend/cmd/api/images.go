@@ -84,7 +84,41 @@ func (app *application) getImagesHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	http.ServeFile(w, r, path)
+	opts := &storage.ImageProcessingOption{}
+	queryString := r.URL.Query()
+	v := validator.New()
+
+	opts.Crop = app.readBool(queryString, "crop", v)
+	opts.Width = app.readInt(queryString, "w", 0, v)
+	opts.Height = app.readInt(queryString, "h", 0, v)
+	opts.Quality = app.readInt(queryString, "q", 100, v)
+	opts.BlurSigma = app.readFloat(queryString, "blur", 0, v)
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	v.ResetErrors()
+
+	if opts.Height > 0 || opts.Width > 0 {
+		if storage.ValidateImageProcessingOption(v, opts); !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		}
+	}
+
+	img, err := storage.ProcessImage(path, opts)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = storage.EncodeImage(w, r, img, opts, image)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) getImagesMetadataHandler(w http.ResponseWriter, r *http.Request) {

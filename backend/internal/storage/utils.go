@@ -26,6 +26,7 @@ var (
 	ErrValidation        = errors.New("image validation failed")
 	ErrSystem            = errors.New("system error")
 	ErrFileMove          = errors.New("failed to move file")
+	ErrOpenImage         = errors.New("cannot open file for processing")
 )
 
 var CONTENT_DECODERS = map[string](func(r io.Reader) (image.Config, error)){
@@ -94,4 +95,9 @@ func saveFileToDisk(file multipart.File, filePath string) error {
 		return ErrSystem
 	}
 	return nil
+}
+
+func SetImageHeaders(w http.ResponseWriter, filename, mimeType string) {
+	w.Header().Set("Content-Type", mimeType)
+	w.Header().Set("Content-Disposition", "inline; filename=\""+filename+"\"")
 }

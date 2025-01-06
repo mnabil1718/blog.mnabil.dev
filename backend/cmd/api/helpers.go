@@ -164,6 +164,36 @@ func (app *application) readInt(queryString url.Values, key string, defaultValue
 	return intValue
 }
 
+func (app *application) readFloat(queryString url.Values, key string, defaultValue float64, v *validator.Validator) float64 {
+	value := queryString.Get(key)
+	if value == "" {
+		return defaultValue
+	}
+
+	floatValue, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		v.AddError(key, fmt.Sprintf("%s must be a float value.", key))
+	}
+
+	return floatValue
+}
+
+func (app *application) readBool(queryString url.Values, key string, v *validator.Validator) bool {
+
+	value := queryString.Get(key)
+
+	if value == "" {
+		return false
+	}
+
+	res, err := strconv.ParseBool(value)
+	if err != nil {
+		v.AddError(key, fmt.Sprintf("%s must be a boolean value.", key))
+	}
+
+	return res
+}
+
 func (app *application) readCSV(queryString url.Values, key string, defaultValues []string) []string {
 	value := queryString.Get(key)
 	if value == "" {
