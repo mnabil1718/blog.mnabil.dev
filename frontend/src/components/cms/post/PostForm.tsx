@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useTransition } from "react";
 import { Form } from "@/components/ui/form";
-import { FormProvider, useForm } from "react-hook-form";
+import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import { postSchema, PostSchemaType } from "@/validations/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PostFormHeader from "./PostFormHeader";
@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { POST_ACTION, POST_STATUS } from "@/constants/post";
 import { Post } from "@/types/post";
 import { useRouter } from "next/navigation";
+import { displayFormErrorsToast } from "@/utils/form";
 
 const PostForm = ({ initData }: { initData: Post }) => {
   const { toast } = useToast();
@@ -38,73 +39,82 @@ const PostForm = ({ initData }: { initData: Post }) => {
     },
   });
 
-  const onSubmit = form.handleSubmit(async (data, event) => {
-    const action = (
-      (event?.nativeEvent as SubmitEvent).submitter as HTMLButtonElement
-    )?.value as string;
+  const onSubmit = form.handleSubmit(
+    async (data, event) => {
+      const action = (
+        (event?.nativeEvent as SubmitEvent).submitter as HTMLButtonElement
+      )?.value as string;
 
-    var status: string = "";
+      var status: string = "";
 
-    if (action === POST_ACTION.SAVE) {
-      status = initData.status ?? POST_STATUS.DRAFT;
-    }
+      if (action === POST_ACTION.SAVE) {
+        status = initData.status ?? POST_STATUS.DRAFT;
+      }
 
-    if (action === POST_ACTION.PUBLISH) {
-      status = POST_STATUS.PUBLISHED;
-    }
+      if (action === POST_ACTION.PUBLISH) {
+        status = POST_STATUS.PUBLISHED;
+      }
 
-    var formData: FormData = objectToFormData({
-      title: data.title,
-      slug: data.slug,
-      preview: data.preview,
-      tags: data.tags,
-      content: data.content,
-      image_name: data.image.name,
-      image_alt: data.image.alt,
-      status: status,
-      csrf_token: csrfToken,
-    });
-
-    if (action === POST_ACTION.UNPUBLISH) {
-      status = POST_STATUS.DRAFT;
-      formData = objectToFormData({
+      var formData: FormData = objectToFormData({
+        title: data.title,
+        slug: data.slug,
+        preview: data.preview,
+        tags: data.tags,
+        content: data.content,
+        image_name: data.image.name,
+        image_alt: data.image.alt,
         status: status,
         csrf_token: csrfToken,
       });
-    }
 
-    if (status === "") {
-      showErrorToast(toast, "Cannot read post action");
-      return;
-    }
-
-    const updatePostWithID = updatePostAction.bind(null, initData.id);
-    const response = await updatePostWithID(formData);
-
-    if (response?.error) {
-      if (typeof response.error === "string") {
-        showErrorToast(toast, response.error);
+      if (action === POST_ACTION.UNPUBLISH) {
+        status = POST_STATUS.DRAFT;
+        formData = objectToFormData({
+          status: status,
+          csrf_token: csrfToken,
+        });
       }
 
-      if (typeof response.error === "object") {
-        for (const [key, message] of Object.entries(response.error)) {
-          form.setError(key as keyof PostSchemaType, {
-            type: "manual",
-            message: message as string,
-          });
-          showErrorToast(toast, message as string);
+      if (status === "") {
+        showErrorToast(toast, "Cannot read post action");
+        return;
+      }
+
+      const updatePostWithID = updatePostAction.bind(null, initData.id);
+      const response = await updatePostWithID(formData);
+
+      if (response?.error) {
+        if (typeof response.error === "string") {
+          showErrorToast(toast, response.error);
         }
+
+        if (typeof response.error === "object") {
+          for (const [key, message] of Object.entries(response.error)) {
+            form.setError(key as keyof PostSchemaType, {
+              type: "manual",
+              message: message as string,
+            });
+            showErrorToast(toast, message as string);
+          }
+        }
+        return;
       }
-      return;
+
+      // reset form default values to newly updated post
+      form.reset(response.post);
+
+      showSuccessToast(toast, `Post ${action} successfully`);
+
+      router.refresh();
+    },
+    (err) => {
+      // xl or more metadata form is visible
+      // no need to show error toast
+      if (window.innerWidth < 1280) {
+        displayFormErrorsToast(err, toast);
+      }
     }
-
-    // reset form default values to newly updated post
-    form.reset(response.post);
-
-    showSuccessToast(toast, `Post ${action} successfully`);
-
-    router.refresh();
-  });
+  );
 
   return (
     <FormProvider {...form}>

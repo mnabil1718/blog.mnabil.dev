@@ -30,7 +30,6 @@ import { dummyTags } from "@/data/tags";
 import { showErrorToast } from "@/utils/show-toasts";
 import { useToast } from "@/components/ui/use-toast";
 import { ActionResponse } from "@/types/action-response";
-import { Separator } from "@/components/ui/separator";
 import TooltipWrapper from "@/components/TooltipWrapper";
 
 async function fetchTags(query: string): Promise<string[]> {

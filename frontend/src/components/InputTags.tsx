@@ -141,7 +141,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
       <div className="relative w-full">
         <div
           className={cn(
-            "has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-neutral-950 has-[:focus-visible]:ring-offset-2 dark:has-[:focus-visible]:ring-neutral-300 min-h-10 flex w-full flex-wrap gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm ring-offset-white  disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950",
+            "min-h-10 flex w-full flex-wrap gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950",
             className
           )}
         >
@@ -161,7 +161,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
             </Badge>
           ))}
           <input
-            className="flex-1 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+            className="flex-1 min-w-0 shrink outline-none overflow-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
             value={pendingDataPoint}
             placeholder={value.length > 0 ? "" : placeholder}
             onBlur={(e) => {
@@ -181,7 +181,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
           <div
             ref={popoverRef}
             tabIndex={-1}
-            className="w-full absolute bg-white shadow-md rounded-md border mt-2 max-h-40 overflow-y-auto soft-scroll z-10"
+            className="absolute z-10 mt-2 max-h-40 w-full overflow-y-auto rounded-md border bg-white shadow-md soft-scroll"
           >
             {isLoading ? (
               <div className="px-3 py-2 text-sm text-neutral-500">
@@ -196,7 +196,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
                   tabIndex={0}
                   key={suggestion}
                   className={cn(
-                    "px-3 py-2 cursor-pointer text-sm",
+                    "cursor-pointer px-3 py-2 text-sm",
                     highlightedIndex === index
                       ? "bg-neutral-100 dark:bg-neutral-700"
                       : "hover:bg-neutral-100 dark:hover:bg-neutral-700"

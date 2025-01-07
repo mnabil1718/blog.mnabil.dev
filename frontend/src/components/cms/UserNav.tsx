@@ -16,6 +16,7 @@ import objectToFormData from "@/utils/object-to-form-data";
 import { logoutAction } from "@/actions/auth";
 import { showErrorToast } from "@/utils/show-toasts";
 import { useToast } from "../ui/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export function UserNav({
   sessionUser,
@@ -25,6 +26,7 @@ export function UserNav({
   csrfToken: string;
 }) {
   const { toast } = useToast();
+  const nameSplit = sessionUser.name.split(" ");
   const logoutHandler = async () => {
     const formData = objectToFormData({ csrf_token: csrfToken });
     const res = await logoutAction(formData);
@@ -35,9 +37,11 @@ export function UserNav({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={"default"} className="relative h-8 w-8 rounded-full">
-          {sessionUser.name[0].toUpperCase()}
-        </Button>
+        <Avatar>
+          <AvatarFallback className="hover:cursor-pointer bg-foreground text-background">
+            {nameSplit[0][0].toUpperCase() + nameSplit[1][0].toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
