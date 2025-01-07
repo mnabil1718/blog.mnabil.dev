@@ -54,6 +54,11 @@ func (app *application) getIdFromRequestContext(request *http.Request) (int64, e
 	return id, nil
 }
 
+func (app *application) getStatusFromRequestContext(request *http.Request) string {
+	params := httprouter.ParamsFromContext(request.Context())
+	return params.ByName("id")
+}
+
 func (app *application) getImageNameFromRequestContext(request *http.Request) (string, error) {
 	params := httprouter.ParamsFromContext(request.Context())
 	name := params.ByName("name")

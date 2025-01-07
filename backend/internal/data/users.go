@@ -17,7 +17,7 @@ var (
 )
 
 type User struct {
-	ID        int64      `json:"id"`
+	ID        int64      `json:"id,omitempty"`
 	Name      string     `json:"name,omitempty"`
 	Email     string     `json:"email,omitempty"`
 	Activated bool       `json:"activated,omitempty"`
@@ -129,6 +129,38 @@ func (model UserModel) GetByID(id int64) (*User, error) {
 		}
 	}
 	return user, nil
+}
+
+func (model UserModel) GetByIDs(ids []int64) (map[int64]*User, error) {
+
+	SQL := `SELECT id, name, email, password, activated, created_at, version 
+			FROM users WHERE id = ANY($1)`
+
+	args := []interface{}{ids}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	rows, err := model.DB.QueryContext(ctx, SQL, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make(map[int64]*User)
+
+	for rows.Next() {
+		user := &User{}
+		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password.hash, &user.Activated, &user.CreatedAt, &user.Version)
+		if err != nil {
+			return nil, err
+		}
+
+		users[user.ID] = user
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (model UserModel) GetByEmail(email string) (*User, error) {

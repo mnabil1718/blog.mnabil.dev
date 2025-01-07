@@ -21,7 +21,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/images/:name/metadata", app.getImagesMetadataHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/images", app.requireAuthenticatedUser(app.uploadImagesHandler))
 
+	router.HandlerFunc(http.MethodGet, "/v1/posts", app.listPostsHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/posts", app.requireAuthenticatedUser(app.createPostHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/posts/:id/count", app.requireAuthenticatedUser(app.getStatusCountHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/posts/:id", app.requireAuthenticatedUser(app.getPostByIDHandler))
 	router.HandlerFunc(http.MethodPatch, "/v1/posts/:id", app.requireAuthenticatedUser(app.updatePostHandler))
 

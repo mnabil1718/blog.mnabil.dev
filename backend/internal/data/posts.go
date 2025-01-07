@@ -15,6 +15,14 @@ var (
 	postStatusChoices = []string{"draft", "published", "archived"}
 )
 
+type PostStatus string
+
+const (
+	DRAFT     PostStatus = "draft"
+	PUBLISHED PostStatus = "published"
+	ARCHIVED  PostStatus = "archived"
+)
+
 type Post struct {
 	ID        int64        `json:"id"`
 	Author    *User        `json:"author,omitempty"`
@@ -25,8 +33,8 @@ type Post struct {
 	Status    string       `json:"status,omitempty"`
 	Tags      []string     `json:"tags"`
 	Image     *Image       `json:"image,omitempty"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt *time.Time   `json:"updated_at"`
+	CreatedAt *time.Time   `json:"created_at"`
 	DeletedAt sql.NullTime `json:"-"`
 	Version   int32        `json:"-"`
 }
@@ -76,6 +84,60 @@ func (model PostModel) Insert(post *Post) error {
 	return nil
 }
 
+func (model PostModel) GetAll(title string, tags []string, filters Filters) ([]*Post, Metadata, error) {
+
+	SQL := `
+			SELECT COUNT(*) OVER(), id, user_id, title, preview, slug, image_name, tags, status, created_at, updated_at, deleted_at, version
+			FROM posts
+			WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+			AND (tags @> $2 OR $2 = '{}')
+			AND ($3 = 'all' OR status = $3::post_status)
+			ORDER BY updated_at DESC
+			LIMIT $4 OFFSET $5`
+
+	args := []interface{}{title, tags, filters.Status, filters.limit(), filters.offset()}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := model.DB.QueryContext(ctx, SQL, args...)
+	if err != nil {
+		return nil, Metadata{}, err
+	}
+	defer rows.Close()
+
+	totalRecords := 0
+	posts := []*Post{}
+
+	for rows.Next() {
+		post := &Post{Author: &User{}}
+		m := pgtype.NewMap()
+		var tags []string
+		var image_name *string
+
+		err := rows.Scan(&totalRecords, &post.ID, &post.Author.ID, &post.Title, &post.Preview, &post.Slug, &image_name, m.SQLScanner(&tags), &post.Status, &post.CreatedAt, &post.UpdatedAt, &post.DeletedAt, &post.Version)
+		if err != nil {
+			return nil, Metadata{}, err
+		}
+
+		post.Tags = tags
+
+		if image_name != nil {
+			post.Image = &Image{Name: *image_name}
+		}
+
+		posts = append(posts, post)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, Metadata{}, err
+	}
+
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return posts, metadata, nil
+}
+
 func (model PostModel) GetByID(id int64) (*Post, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
@@ -113,13 +175,13 @@ func (model PostModel) GetByID(id int64) (*Post, error) {
 	return post, nil
 }
 
-func (model PostModel) Update(post *Post) error {
+func (model PostModel) UpdateForUser(post *Post, userID int64) error {
 	SQL := `UPDATE posts
 						SET slug=$1, title=$2, preview=$3, content=$4, image_name=$5, status=$6, tags=$7, version=version + 1
 					WHERE id=$8 AND user_id=$9 AND version=$10
 					RETURNING version`
 
-	args := []interface{}{post.Slug, post.Title, post.Preview, post.Content, post.Image.Name, post.Status, post.Tags, post.ID, post.Author.ID, post.Version}
+	args := []interface{}{post.Slug, post.Title, post.Preview, post.Content, post.Image.Name, post.Status, post.Tags, post.ID, userID, post.Version}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	err := model.DB.QueryRowContext(ctx, SQL, args...).Scan(&post.Version)
@@ -133,4 +195,39 @@ func (model PostModel) Update(post *Post) error {
 	}
 
 	return nil
+}
+
+func (model PostModel) CountByStatus() (map[string]int, error) {
+	SQL := `SELECT COUNT(*), status
+					FROM posts GROUP BY status`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := model.DB.QueryContext(ctx, SQL)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	m := make(map[string]int)
+
+	for rows.Next() {
+
+		var count int
+		var status string
+
+		err := rows.Scan(&count, &status)
+		if err != nil {
+			return nil, err
+		}
+
+		m[status] = count
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }

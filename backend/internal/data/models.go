@@ -10,16 +10,8 @@ var (
 	ErrEditConflict   = errors.New("edit conflict")
 )
 
-type UsersModelInterface interface {
-	Insert(user *User) error
-	GetByEmail(email string) (*User, error)
-	GetByID(id int64) (*User, error)
-	Update(user *User) error
-	GetForToken(scope string, tokenPlainText string) (*User, error)
-}
-
 type Models struct {
-	Users       UsersModelInterface
+	Users       UserModel
 	Tokens      TokenModel
 	Permissions PermissionModel
 	Posts       PostModel

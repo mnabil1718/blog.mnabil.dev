@@ -15,19 +15,19 @@ var (
 )
 
 type Image struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Alt       string    `json:"alt"`
-	FileName  string    `json:"file_name,omitempty"`
-	Size      int32     `json:"size,omitempty"`
-	Width     int32     `json:"width,omitempty"`
-	Height    int32     `json:"height,omitempty"`
-	MIMEType  string    `json:"mime_type,omitempty"`
-	URL       string    `json:"url,omitempty"` // will always be empty from DB, remember to set in handlers
-	IsTemp    bool      `json:"-"`
-	UpdatedAt time.Time `json:"-"`
-	CreatedAt time.Time `json:"created_at"`
-	Version   int32     `json:"-"`
+	ID        int64      `json:"id,omitempty"`
+	Name      string     `json:"name"`
+	Alt       string     `json:"alt"`
+	FileName  string     `json:"file_name,omitempty"`
+	Size      int32      `json:"size,omitempty"`
+	Width     int32      `json:"width,omitempty"`
+	Height    int32      `json:"height,omitempty"`
+	MIMEType  string     `json:"mime_type,omitempty"`
+	URL       string     `json:"url,omitempty"` // will always be empty from DB, remember to set in handlers
+	IsTemp    bool       `json:"-"`
+	UpdatedAt time.Time  `json:"-"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Version   int32      `json:"-"`
 }
 
 func ValidateImageName(v *validator.Validator, name string) {
@@ -101,6 +101,39 @@ func (model ImageModel) GetByName(name string) (*Image, error) {
 	}
 
 	return image, nil
+}
+
+func (model ImageModel) GetByNames(names []string) (map[string]*Image, error) {
+
+	SQL := `SELECT id, name, alt, file_name, size, width, height, mime_type, created_at, updated_at, version, is_temp
+			FROM images WHERE
+			name = ANY($1)`
+
+	args := []interface{}{names}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	rows, err := model.DB.QueryContext(ctx, SQL, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	images := make(map[string]*Image)
+
+	for rows.Next() {
+		image := &Image{}
+		err := rows.Scan(&image.ID, &image.Name, &image.Alt, &image.FileName, &image.Size, &image.Width, &image.Height, &image.MIMEType, &image.CreatedAt, &image.UpdatedAt, &image.Version, &image.IsTemp)
+		if err != nil {
+			return nil, err
+		}
+
+		images[image.Name] = image
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return images, nil
 }
 
 func (model ImageModel) Update(image *Image) error {

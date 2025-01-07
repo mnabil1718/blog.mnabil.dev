@@ -11,6 +11,12 @@ import (
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
 
+type ListPostRequest struct {
+	Title string
+	Tags  []string
+	data.Filters
+}
+
 type updatePostRequest struct {
 	Title   *string `json:"title"`
 	Slug    *string `json:"slug"`
@@ -26,6 +32,90 @@ type updatePostRequest struct {
 
 type CreatePostRequest struct {
 	UserID int64 `json:"user_id"`
+}
+
+func (app *application) getStatusCountHandler(w http.ResponseWriter, r *http.Request) {
+	if status := app.getStatusFromRequestContext(r); status != "status" {
+		app.notFoundResponse(w, r) // /posts/abcd/count will return 404
+		return
+	}
+
+	m, err := app.models.Posts.CountByStatus()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"data": m}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+}
+
+func (app *application) listPostsHandler(w http.ResponseWriter, r *http.Request) {
+	var listPostRequest ListPostRequest
+	validator := validator.New()
+	queryString := r.URL.Query()
+
+	listPostRequest.Title = app.readString(queryString, "title", "")
+	listPostRequest.Tags = app.readCSV(queryString, "tags", []string{})
+	listPostRequest.PageSize = app.readInt(queryString, "page_size", 10, validator)
+	listPostRequest.Page = app.readInt(queryString, "page", 1, validator)
+	listPostRequest.Status = app.readString(queryString, "status", "all")
+	listPostRequest.StatusSafelist = []string{"all", string(data.DRAFT), string(data.PUBLISHED), string(data.ARCHIVED)}
+
+	if data.ValidateFilters(validator, &listPostRequest.Filters); !validator.Valid() {
+		app.failedValidationResponse(w, r, validator.Errors)
+		return
+	}
+
+	posts, metadata, err := app.models.Posts.GetAll(listPostRequest.Title, listPostRequest.Tags, listPostRequest.Filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	var extractedAuthorIDs []int64
+	var extractedImageNames []string
+
+	for idx := range posts {
+		extractedAuthorIDs = append(extractedAuthorIDs, posts[idx].Author.ID)
+		if posts[idx].Image != nil {
+			extractedImageNames = append(extractedImageNames, posts[idx].Image.Name)
+		}
+	}
+
+	users, err := app.models.Users.GetByIDs(extractedAuthorIDs)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	images, err := app.models.Images.GetByNames(extractedImageNames)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// memory efficient, use idx
+	for idx := range posts {
+		posts[idx].Author = &data.User{Name: users[posts[idx].Author.ID].Name, Email: users[posts[idx].Author.ID].Email}
+		if posts[idx].Image != nil {
+			image := images[posts[idx].Image.Name]
+			posts[idx].Image = &data.Image{
+				Name: image.Name,
+				Alt:  image.Alt,
+				URL:  app.generateImageURL(image.Name),
+			}
+		}
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"metadata": metadata, "posts": posts}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
 }
 
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -252,11 +342,11 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 	// check if current user is post
 	// author otherwise update error
 	user := app.contextGetUser(r)
-	post.Author.ID = user.ID
+	post.Author.ID = 0 // don't leak author id on update
 	post.Author.Name = user.Name
 	post.Author.Email = user.Email
 
-	err = app.models.Posts.Update(post)
+	err = app.models.Posts.UpdateForUser(post, user.ID)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrEditConflict):
@@ -267,10 +357,7 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/posts/%d", post.ID))
-
-	err = app.writeJSON(w, http.StatusCreated, envelope{"post": post}, headers)
+	err = app.writeJSON(w, http.StatusOK, envelope{"post": post}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
