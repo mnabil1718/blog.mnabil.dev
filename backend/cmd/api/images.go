@@ -84,14 +84,14 @@ func (app *application) getImagesHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	opts := &storage.ImageProcessingOption{}
+	opts := &storage.ImageProcessingOption{Quality: 100}
 	queryString := r.URL.Query()
 	v := validator.New()
 
 	opts.Crop = app.readBool(queryString, "crop", v)
 	opts.Width = app.readInt(queryString, "w", 0, v)
 	opts.Height = app.readInt(queryString, "h", 0, v)
-	opts.Quality = app.readInt(queryString, "q", 100, v)
+	opts.Quality = app.readInt(queryString, "q", opts.Quality, v)
 	opts.BlurSigma = app.readFloat(queryString, "blur", 0, v)
 
 	if !v.Valid() {
