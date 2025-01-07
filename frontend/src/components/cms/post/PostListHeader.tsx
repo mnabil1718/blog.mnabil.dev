@@ -8,15 +8,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PostCategorySelect } from "@/types/post";
+import { PostStatusCount } from "@/types/post";
 import CreatePostButton from "./CreatePostButton";
 
 const PostListHeader = ({
-  postCategories,
+  postStatusCount,
 }: {
-  postCategories: PostCategorySelect[];
+  postStatusCount: PostStatusCount[];
 }) => {
-  const [category, setCategory] = useState(postCategories[0].value);
+  const [category, setCategory] = useState(postStatusCount[0].status);
   const onChangeHandler = (value: string) => {
     setCategory(value);
     // TODO: Set URL Query String Filter
@@ -26,17 +26,17 @@ const PostListHeader = ({
     <div className="flex justify-between">
       <Select
         value={category}
-        defaultValue={postCategories[0].value}
+        defaultValue={postStatusCount[0].count.toString()}
         onValueChange={onChangeHandler}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All" />
         </SelectTrigger>
         <SelectContent>
-          {postCategories.map((category, idx) => {
+          {postStatusCount.map((category, idx) => {
             return (
-              <SelectItem key={idx} value={category.value}>
-                {category.label}
+              <SelectItem key={idx} value={category.count.toString()}>
+                {category.status}
               </SelectItem>
             );
           })}

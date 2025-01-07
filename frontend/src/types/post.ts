@@ -21,7 +21,7 @@ export type Post = {
 // You can use a Zod schema here if you want.
 // TODO: zod schema for forms
 
-export type PostCategorySelect = {
-  value: string;
-  label: string;
+export type PostStatusCount = {
+  status: string;
+  count: number;
 };

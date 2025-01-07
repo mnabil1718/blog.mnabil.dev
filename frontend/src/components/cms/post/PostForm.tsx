@@ -100,7 +100,6 @@ const PostForm = ({ initData }: { initData: Post }) => {
         return;
       }
 
-      // reset form default values to newly updated post
       form.reset(response.post);
 
       showSuccessToast(toast, `Post ${action} successfully`);

@@ -161,7 +161,7 @@ const InputTags = React.forwardRef<HTMLInputElement, InputTagsProps>(
             </Badge>
           ))}
           <input
-            className="flex-1 min-w-0 shrink outline-none overflow-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+            className="flex-1 min-w-4 shrink outline-none overflow-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
             value={pendingDataPoint}
             placeholder={value.length > 0 ? "" : placeholder}
             onBlur={(e) => {
