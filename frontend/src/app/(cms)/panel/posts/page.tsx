@@ -7,9 +7,16 @@ import { notFound } from "next/navigation";
 
 import React from "react";
 
-async function getData(): Promise<Post[]> {
+async function getData(searchParams: {
+  [key: string]: string | string[] | undefined;
+}): Promise<Post[]> {
   try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts`);
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts`,
+      {
+        params: searchParams,
+      }
+    );
 
     return res.data.posts;
   } catch (error) {
@@ -44,14 +51,17 @@ async function getCountByStatus(): Promise<PostStatusCount[]> {
   }
 }
 
-export default async function PanelPostsPage() {
-  const posts = await getData();
+export default async function PanelPostsPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const posts = await getData(searchParams);
   const postStatusCount = await getCountByStatus();
 
-  console.log(postStatusCount);
   return (
     <div className="mx-auto w-full p-5 max-w-screen-lg space-y-5">
-      {/* <PostListHeader postStatusCount={postStatusCount} /> */}
+      <PostListHeader postStatusCount={postStatusCount} />
       <ListPanelPostsLayout posts={posts} />
     </div>
   );

@@ -116,6 +116,7 @@ const Dropzone = React.forwardRef<HTMLDivElement, DropzoneProps>(
                 src={previewURL}
                 alt="Thumbnail Preview"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-contain"
               />
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">

@@ -1,5 +1,5 @@
 export type Image = {
-  id: number;
+  id?: number;
   name: string;
   alt: string;
   file_name: string;

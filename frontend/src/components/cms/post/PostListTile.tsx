@@ -1,4 +1,5 @@
 "use client";
+import Thumbnail from "@/components/Thumbnail";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,18 +33,10 @@ const PostListTile = ({ post }: { post: Post }) => {
       year: "numeric",
     })
     .replace(/\//g, "-");
+
   return (
     <div className="p-4 rounded-lg border border-border flex gap-4">
-      <div className="relative w-36 aspect-square lg:w-56 lg:aspect-video bg-gray-400 rounded-lg overflow-hidden flex-none">
-        <Link href={`/panel/posts/${post.id}/edit`}>
-          <Image
-            src={!!!post.image?.url ? "" : `${post.image.url}?h=200&q=100`}
-            alt={post.title ?? ""}
-            fill
-            className="w-full object-cover"
-          />
-        </Link>
-      </div>
+      <Thumbnail image={post.image} />
       <div className="flex-1 space-y-3">
         <Link href={`/panel/posts/${post.id}/edit`}>
           <h2 className="text-lg lg:text-2xl font-bold leading-8 tracking-tight text-foreground line-clamp-1 hover:underline">
