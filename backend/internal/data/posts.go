@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
@@ -39,6 +40,11 @@ type Post struct {
 	Version   int32        `json:"-"`
 }
 
+type PostStatusCount struct {
+	Status string `json:"status"`
+	Count  int    `json:"count"`
+}
+
 func ValidatePostImageName(v *validator.Validator, imageName string) {
 	v.Check(imageName != "", "image", "must be provided")
 	v.Check(validator.Matches(imageName, validator.ImageNameRX), "image", "must be a valid image name")
@@ -51,7 +57,7 @@ func ValidatePostUserIDOnly(v *validator.Validator, post *Post) {
 func ValidatePost(v *validator.Validator, post *Post) {
 	v.Check(post.Author.ID > 0, "author", "invalid user id")
 	v.Check(*post.Title != "", "title", "must be provided")
-	v.Check(len(*post.Title) <= 500, "title", "must not be more than 500 bytes long")
+	v.Check(utf8.RuneCountInString(*post.Title) <= 200, "title", "must be less than 200 characters long")
 	v.Check(*post.Slug != "", "slug", "must be provided")
 	v.Check(*post.Preview != "", "preview", "must be provided")
 	v.Check(*post.Content != "", "content", "must be provided")
@@ -61,6 +67,15 @@ func ValidatePost(v *validator.Validator, post *Post) {
 	v.Check(post.Tags != nil, "tags", "must be provided")
 	v.Check(len(post.Tags) >= 1, "tags", "must contain at least 1 tag")
 	v.Check(len(post.Tags) <= 5, "tags", "must not contain more than 5 tags")
+
+	// just one long tag error is enough
+	for _, tag := range post.Tags {
+		if utf8.RuneCountInString(tag) > 20 {
+			v.AddError("tags", "tag text is too long")
+			break
+		}
+	}
+
 	v.Check(validator.Unique(post.Tags), "tags", "must not contain duplicate values")
 }
 
@@ -197,9 +212,30 @@ func (model PostModel) UpdateForUser(post *Post, userID int64) error {
 	return nil
 }
 
-func (model PostModel) CountByStatus() (map[string]int, error) {
-	SQL := `SELECT COUNT(*), status
-					FROM posts GROUP BY status`
+func (model PostModel) CountByStatus() ([]*PostStatusCount, error) {
+	SQL := `WITH status_counts AS (
+							SELECT status, COUNT(*) AS count
+							FROM posts
+							GROUP BY status
+					),
+					all_posts AS (
+							SELECT 'all' AS status, COUNT(*) AS count
+							FROM posts
+					)
+					SELECT status, count
+					FROM all_posts
+					UNION ALL
+					SELECT sc.status::text, COALESCE(sc.count, 0) AS count
+					FROM (
+							SELECT s.status, sc.count
+							FROM (VALUES 
+									('draft'::post_status), 
+									('published'::post_status), 
+									('archived'::post_status)
+							) AS s(status)
+							LEFT JOIN status_counts sc ON s.status = sc.status
+					) sc
+					ORDER BY status ASC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -210,24 +246,23 @@ func (model PostModel) CountByStatus() (map[string]int, error) {
 	}
 	defer rows.Close()
 
-	m := make(map[string]int)
+	var scs []*PostStatusCount
 
 	for rows.Next() {
 
-		var count int
-		var status string
+		sc := &PostStatusCount{}
 
-		err := rows.Scan(&count, &status)
+		err := rows.Scan(&sc.Status, &sc.Count)
 		if err != nil {
 			return nil, err
 		}
 
-		m[status] = count
+		scs = append(scs, sc)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return m, nil
+	return scs, nil
 }

@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/julienschmidt/httprouter"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/config"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/utils"
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
@@ -44,9 +44,10 @@ func openDB(cfg config.Config) (*sql.DB, error) {
 	return db, nil
 }
 
-func (app *application) getIdFromRequestContext(request *http.Request) (int64, error) {
-	params := httprouter.ParamsFromContext(request.Context())
-	id, err := strconv.ParseInt(params.ByName("id"), 10, 64) // int64
+func (app *application) getIdFromRequestContext(r *http.Request) (int64, error) {
+	paramID := chi.URLParam(r, "id")
+
+	id, err := strconv.ParseInt(paramID, 10, 64) // int64
 	if err != nil || id < 1 {
 		return 0, errors.New("invalid id")
 	}
@@ -54,14 +55,8 @@ func (app *application) getIdFromRequestContext(request *http.Request) (int64, e
 	return id, nil
 }
 
-func (app *application) getStatusFromRequestContext(request *http.Request) string {
-	params := httprouter.ParamsFromContext(request.Context())
-	return params.ByName("id")
-}
-
-func (app *application) getImageNameFromRequestContext(request *http.Request) (string, error) {
-	params := httprouter.ParamsFromContext(request.Context())
-	name := params.ByName("name")
+func (app *application) getImageNameFromRequestContext(r *http.Request) (string, error) {
+	name := chi.URLParam(r, "name")
 
 	err := utils.ValidateImageName(name)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/mnabil1718/blog.mnabil.dev/internal/validator"
 )
@@ -32,7 +33,7 @@ type Image struct {
 
 func ValidateImageName(v *validator.Validator, name string) {
 	v.Check(name != "", "name", "must be provided")
-	v.Check(len(name) <= 750, "name", "must not be more than 750 bytes long")
+	v.Check(utf8.RuneCountInString(name) <= 350, "name", "must be less than 350 characters long")
 	v.Check(validator.Matches(name, validator.ImageNameRX), "name", "must be a valid image name")
 }
 
@@ -45,7 +46,7 @@ func ValidateImage(v *validator.Validator, image *Image) {
 	ValidateImageName(v, image.Name)
 	ValidateImageFileName(v, image.FileName)
 	v.Check(image.Alt != "", "alt", "must be provided")
-	v.Check(len(image.Alt) <= 750, "alt", "must be less than 750 bytes long")
+	v.Check(utf8.RuneCountInString(image.Alt) <= 100, "alt", "too long")
 	v.Check(image.Size > 0, "size", "must be more than zero")
 	v.Check(image.Size < 10*1024*1024, "size", "must be less than 10 MB")
 	v.Check(image.Height > 0, "height", "must be more than zero")

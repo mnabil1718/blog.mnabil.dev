@@ -35,18 +35,14 @@ type CreatePostRequest struct {
 }
 
 func (app *application) getStatusCountHandler(w http.ResponseWriter, r *http.Request) {
-	if status := app.getStatusFromRequestContext(r); status != "status" {
-		app.notFoundResponse(w, r) // /posts/abcd/count will return 404
-		return
-	}
 
-	m, err := app.models.Posts.CountByStatus()
+	scs, err := app.models.Posts.CountByStatus()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"data": m}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"data": scs}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

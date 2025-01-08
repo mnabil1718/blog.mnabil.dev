@@ -124,8 +124,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 	})
 }
 
-// it returns http.HandlerFunc so we could wrap this over our /v1/movies** routes
-func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
 		if user.IsAnonymous() {

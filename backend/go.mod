@@ -5,9 +5,9 @@ go 1.22.0
 require (
 	github.com/chai2010/webp v1.1.1
 	github.com/disintegration/imaging v1.6.2
+	github.com/go-chi/chi/v5 v5.2.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.6.0
-	github.com/julienschmidt/httprouter v1.3.0
 	github.com/justinas/nosurf v1.1.1
 	github.com/spf13/viper v1.19.0
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
