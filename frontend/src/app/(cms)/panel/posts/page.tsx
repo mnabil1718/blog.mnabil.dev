@@ -7,8 +7,6 @@ import { Post, PostStatusCount } from "@/types/post";
 import axios, { isAxiosError } from "axios";
 import { notFound } from "next/navigation";
 
-import React from "react";
-
 async function getData(searchParams: {
   [key: string]: string | string[] | undefined;
 }): Promise<{
@@ -64,12 +62,17 @@ export default async function PanelPostsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const { posts, metadata } = await getData(searchParams);
-  const postStatusCount = await getCountByStatus();
+  const postsData = await getData(searchParams);
+  const statusData = await getCountByStatus();
+
+  const [{ posts, metadata }, statusCounts] = await Promise.all([
+    postsData,
+    statusData,
+  ]);
 
   return (
     <div className="mx-auto w-full p-5 max-w-screen-lg space-y-5">
-      <PostListHeader postStatusCount={postStatusCount} />
+      <PostListHeader postStatusCount={statusCounts} />
       <ListPanelPostsLayout posts={posts} />
       <Pagination metadata={metadata} />
     </div>

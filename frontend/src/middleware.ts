@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSession } from "./actions/auth";
 import { constructUrl } from "./utils/construct-url";
-import { setFlashMessage } from "./actions/flash";
+import { cookies } from "next/headers";
+import { generateSetFlashMessageHeader } from "./utils/flash";
 
 const csrfProtect = createCsrfProtect({
   cookie: {
@@ -41,12 +42,20 @@ export async function middleware(request: NextRequest) {
 
     // NO TOKEN
     if (session.authentication_token.token == "") {
-      setFlashMessage("error", "Please log in to your account first");
+      const flashHeader = generateSetFlashMessageHeader(
+        "error",
+        "Please log in to your account first"
+      );
       return NextResponse.redirect(
         new URL(
           constructUrl("/login", { next: intendedRoute }),
           request.nextUrl.origin
-        ).href
+        ).href,
+        {
+          headers: {
+            "Set-Cookie": flashHeader,
+          },
+        }
       );
     }
   }
@@ -57,9 +66,18 @@ export async function middleware(request: NextRequest) {
   ) {
     const session = await getSession();
     if (session.authentication_token.token != "") {
-      setFlashMessage("error", "you are already authenticated.");
+      const flashHeader = generateSetFlashMessageHeader(
+        "error",
+        "you are already authenticated."
+      );
+
       return NextResponse.redirect(
-        new URL("/dashboard", request.nextUrl.origin).href
+        new URL("/dashboard", request.nextUrl.origin).href,
+        {
+          headers: {
+            "Set-Cookie": flashHeader,
+          },
+        }
       );
     }
   }
